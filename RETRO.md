@@ -51,6 +51,9 @@ implementação que o satisfaz é da IA** (Etapa 14 §3).
 Export da colaboração commitado em `ai-logs/2026-09-01-implementacao-zcode.md`
 (método, sessões, incidentes de processo) — scan de segredos: **0 achados**.
 
+| L7 | **"Bug do loop" do chat era Service Worker de outro app (AzyHub) na origin :3000** servindo app errado no browser — nossas portas/containers estavam corretos | sw-guard no front (unregister+reload) + dev em :3001 como origin limpa + diagnóstico por browser real (IAB) que expôs o app intruso |
+| L8 | Smoke de 23 endpoints pegou **2 esperados errados MEUS** (×1.15 do veículo 6-10a) — a API do desafio estava certa | esperarados corrigidos com a tabela plans.json; lição: desconfiar do teste antes da API quando os números divergem |
+
 ## Incidentes e postmortems ⏳
 
 Nenhum incidente real até aqui (sistema ainda não implantado). Ensaio de

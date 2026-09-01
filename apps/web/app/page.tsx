@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 import { Digitando, HandoffBanner, MessageBubble, QuoteCard, type Quote, type TurnoResponse } from "./components";
+import { purgeAlienServiceWorkers } from "./sw-guard";
 
 const API = process.env.NEXT_PUBLIC_AGENT_API_URL ?? "http://localhost:8010";
 
@@ -18,6 +19,12 @@ export default function Chat() {
   const [pensando, setPensando] = useState(false);
   const [entrada, setEntrada] = useState("");
   const fim = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    void purgeAlienServiceWorkers().then((n) => {
+      if (n > 0) window.location.reload(); // SW velho removido: recarrega limpo
+    });
+  }, []);
 
   useEffect(() => {
     fetch(`${API}/conversations`, { method: "POST" })

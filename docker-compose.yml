@@ -16,6 +16,7 @@ services:
       QUOTE_API_URL: http://quote-api:8000
       DATABASE_URL: postgresql://autoseguro:autoseguro@postgres:5432/autoseguro
       LLM_API_KEY: ${LLM_API_KEY:-}          # dev sem LLM → FakeLLM/fallback canônico
+      AGENT_CORS_ORIGINS: "http://localhost:3000,http://localhost:3001"
       LLM_PROVIDER: ${LLM_PROVIDER:-openai}
       MASKING_STRICT: "true"
       # resiliência (spec §2 / etapa-6 §4.1) — defaults explícitos

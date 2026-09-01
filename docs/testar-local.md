@@ -10,6 +10,9 @@
 bash scripts/run-local.sh          # sobe legado + agent-api
 # em outro terminal:
 cd apps/web && pnpm dev            # front em http://localhost:3000
+# ⚠️ se :3000 mostrar OUTRO app (SW cacheado de projetos antigos, ex. AzyHub):
+PORT=3001 pnpm dev                 # origin limpa — CORS já liberado p/ 3001
+# (ou DevTools → Application → Service Workers → Unregister, uma vez)
 ```
 
 ## Modo 2 — manual
@@ -75,6 +78,14 @@ cd services/agent-api && uv run python ../../evals/bateria_tra.py 200
 ```
 
 *(sem `make` no Windows? use os comandos acima diretamente — equivalentes aos alvos do Makefile)*
+
+## Smoke de TODAS as APIs do desafio (23 endpoints)
+
+```bash
+cd services/agent-api && uv run python ../../evals/api_smoke.py
+# legado: /health /planos /quote(3 planos×multiplicadores, pró-rata, 422×3, 400)
+# agente: §5.4 inteiro — 23/23 esperado verde
+```
 
 ## Docker (compose validado — engine aguarda WSL)
 
