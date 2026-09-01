@@ -1,6 +1,7 @@
 ---
 n: 40
-quando: 2026-09-01 17:58  (base: 9a3ffc5)
+quando: "2026-09-01 17:58"
+commit_base: 9a3ffc5
 categoria: goal
 ---
 

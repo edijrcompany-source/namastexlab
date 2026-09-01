@@ -1,6 +1,7 @@
 ---
 n: 22
-quando: 2026-09-01 17:58  (base: ca7cfa3)
+quando: "2026-09-01 17:58"
+commit_base: ca7cfa3
 categoria: etapa
 ---
 

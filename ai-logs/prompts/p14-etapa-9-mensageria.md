@@ -1,6 +1,7 @@
 ---
 n: 14
-quando: 2026-09-01 17:58  (base: db15ab5)
+quando: "2026-09-01 17:58"
+commit_base: db15ab5
 categoria: etapa
 ---
 

@@ -1,6 +1,7 @@
 ---
 n: 41
-quando: 2026-09-01 18:50  (base: 3610077)
+quando: "2026-09-01 18:50"
+commit_base: 3610077
 categoria: duvida
 ---
 

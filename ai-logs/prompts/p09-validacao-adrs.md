@@ -1,6 +1,7 @@
 ---
 n: 9
-quando: 2026-09-01 17:58  (base: 5da1e1c)
+quando: "2026-09-01 17:58"
+commit_base: 5da1e1c
 categoria: validacao
 ---
 

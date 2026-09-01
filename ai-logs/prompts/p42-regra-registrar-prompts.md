@@ -1,6 +1,7 @@
 ---
 n: 42
-quando: 2026-09-01 18:50  (base: 5a98723)
+quando: "2026-09-01 18:50"
+commit_base: 5a98723
 categoria: feedback
 ---
 

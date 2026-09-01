@@ -1,6 +1,7 @@
 ---
 n: 43
-quando: 2026-09-01 19:03  (base: c40720e)
+quando: "2026-09-01 19:03"
+commit_base: c40720e
 categoria: bug
 ---
 

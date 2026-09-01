@@ -1,6 +1,7 @@
 ---
 n: 28
-quando: 2026-09-01 17:58  (base: b88bb57)
+quando: "2026-09-01 17:58"
+commit_base: b88bb57
 categoria: decisao
 ---
 

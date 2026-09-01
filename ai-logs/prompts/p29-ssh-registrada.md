@@ -1,6 +1,7 @@
 ---
 n: 29
-quando: 2026-09-01 17:58  (base: c25a3ce)
+quando: "2026-09-01 17:58"
+commit_base: c25a3ce
 categoria: validacao
 ---
 

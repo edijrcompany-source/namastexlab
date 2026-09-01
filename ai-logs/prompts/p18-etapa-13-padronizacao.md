@@ -1,6 +1,7 @@
 ---
 n: 18
-quando: 2026-09-01 17:58  (base: 41ec313)
+quando: "2026-09-01 17:58"
+commit_base: 41ec313
 categoria: etapa
 ---
 

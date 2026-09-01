@@ -1,6 +1,7 @@
 ---
 n: 7
-quando: 2026-09-01 17:58  (base: b29fca4)
+quando: "2026-09-01 17:58"
+commit_base: b29fca4
 categoria: feedback
 ---
 

@@ -1,6 +1,7 @@
 ---
 n: 11
-quando: 2026-09-01 17:58  (base: 75f1274)
+quando: "2026-09-01 17:58"
+commit_base: 75f1274
 categoria: etapa
 ---
 

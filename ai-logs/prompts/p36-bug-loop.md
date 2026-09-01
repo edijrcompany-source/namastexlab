@@ -1,6 +1,7 @@
 ---
 n: 36
-quando: 2026-09-01 17:58  (base: 0d77f1e)
+quando: "2026-09-01 17:58"
+commit_base: 0d77f1e
 categoria: bug
 ---
 

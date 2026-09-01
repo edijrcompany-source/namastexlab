@@ -1,6 +1,7 @@
 ---
 n: 1
-quando: 2026-09-01 17:58  (base: a5fedd6)
+quando: "2026-09-01 17:58"
+commit_base: a5fedd6
 categoria: decisao
 ---
 

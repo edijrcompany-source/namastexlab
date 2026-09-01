@@ -1,6 +1,7 @@
 ---
 n: 10
-quando: 2026-09-01 17:58  (base: cf460af)
+quando: "2026-09-01 17:58"
+commit_base: cf460af
 categoria: etapa
 ---
 

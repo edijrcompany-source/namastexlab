@@ -1,6 +1,7 @@
 ---
 n: 5
-quando: 2026-09-01 17:58  (base: f9383bf)
+quando: "2026-09-01 17:58"
+commit_base: f9383bf
 categoria: etapa
 ---
 

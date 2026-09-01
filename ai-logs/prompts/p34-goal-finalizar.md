@@ -1,6 +1,7 @@
 ---
 n: 34
-quando: 2026-09-01 17:58  (base: 75ea255)
+quando: "2026-09-01 17:58"
+commit_base: 75ea255
 categoria: goal
 ---
 
