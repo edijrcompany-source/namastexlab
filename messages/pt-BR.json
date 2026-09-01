@@ -9,10 +9,11 @@
     "saudacao": "Oi! Que bom te ver por aqui. Pra cotar seu seguro eu preciso de três coisas: o veículo com o ano, a sua idade e o CEP de onde o carro dorme.",
     "pedir_campo": {
       "veiculo": "Qual a marca, modelo e ano do seu carro?",
-      "idade": "E a sua idade?",
-      "cep": "Por último: qual o CEP de onde o carro dorme?",
+      "idade": "Qual a sua idade? (basta o número, ex: 30)",
+      "cep": "Por último: qual o CEP de onde o carro dorme? (8 dígitos, ex: 01310-100)",
       "data_inicio": "Quer dizer a data de início da vigência? (opcional — formato AAAA-MM-DD)"
     },
+    "campo_invalido": "⚠️ {campo}: {motivo}. Vamos tentar de novo — ",
     "eco_confirmacao": "Confirmando: veículo {veiculo}, {idade} anos, CEP {cep}. É isso?",
     "midia_nao_suportada": "Não consigo abrir {tipo_midia} daqui. Pode me escrever a informação?",
     "recusa_idade": "Poxa, nosso limite de aceitação vai até 75 anos — pela regra da seguradora eu não consigo cotar. Se quiser, te passo pra um vendedor pra revisar seu caso.",

@@ -261,7 +261,16 @@ class TurnOrchestrator:
             case Efeito.PEDIR_FALTANTES:
                 campo = dados.faltantes()[0] if dados.faltantes() else "veiculo_ano"
                 chave = {"veiculo_ano": "veiculo", "idade": "idade", "cep": "cep"}[campo]
-                return t(f"agent.pedir_campo.{chave}", self._cat)
+                # UX fix: se há rejeições neste turno, explica ANTES de pedir de novo
+                prefixo = ""
+                if dados.rejeicoes:
+                    for campo_rej, motivo in dados.rejeicoes.items():
+                        prefixo += (
+                            t("agent.campo_invalido", self._cat, campo=campo_rej, motivo=motivo)
+                            + " "
+                        )
+                    conversa.registrar_evento("campo_rejeitado", dict(dados.rejeicoes))
+                return prefixo + t(f"agent.pedir_campo.{chave}", self._cat)
             case Efeito.ECO_CONFIRMACAO:
                 return t(
                     "agent.eco_confirmacao",
