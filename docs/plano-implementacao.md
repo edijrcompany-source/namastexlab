@@ -7,8 +7,8 @@
 > de escopo exige decisão explícita do dono do projeto e vira ADR/nota de
 > revisão — **zero scope creep silencioso**.
 >
-> **Gate de cobertura atualizado por decisão do dono (01/09/2026): 99% na
-> lógica determinística** (era 90% — NFR-16 revisado; ver §1.3).
+> **Gate de cobertura atualizado por decisão do dono (01/09/2026): **100% na
+> lógica determinística** (90→99→100 — NFR-16 revisado; ver §1.3).
 
 ---
 

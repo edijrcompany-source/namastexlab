@@ -99,7 +99,7 @@ jobs:
         with: { node-version: 20, cache: pnpm }
       - run: npm i -g pnpm && pnpm install --frozen-lockfile
       - name: pytest (unit + integration + contract — coverage gate 90%)
-        run: cd services/agent-api && uv sync --dev && uv run pytest -m "unit or integration or contract" --cov --cov-fail-under=99
+        run: cd services/agent-api && uv sync --dev && uv run pytest -m "unit or integration or contract" --cov --cov-fail-under=100
       - name: vitest (utils + componentes Testing Library)
         run: pnpm --filter web test -- --run
 

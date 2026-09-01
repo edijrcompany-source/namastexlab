@@ -92,7 +92,7 @@ omit = ["app/__main__*"]
 
 [tool.coverage.report]
 # Gate NFR-16: >=90% na logica deterministica (modulo a modulo, ver Etapa 14 §2)
-fail_under = 99
+fail_under = 100
 show_missing = true
 
 [tool.uv]
