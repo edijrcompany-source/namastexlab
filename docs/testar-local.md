@@ -64,9 +64,17 @@ Ou **abra http://localhost:3000** e converse no chat.
 ## Testes automatizados
 
 ```bash
+# unitários+integração com gate de cobertura 100% (157 testes)
 cd services/agent-api && uv run pytest --cov=app --cov-fail-under=100
-# 151 testes · cobertura 100% (gate)
+
+# evals E1/E2/E3 com gates (extração ≥90 · handoff ≥95 · adversarial 0/20)
+cd services/agent-api && uv run python ../../evals/run_evals.py
+
+# bateria TRA — métrica norte (200 conversas no pior caso, meta ≥70%)
+cd services/agent-api && uv run python ../../evals/bateria_tra.py 200
 ```
+
+*(sem `make` no Windows? use os comandos acima diretamente — equivalentes aos alvos do Makefile)*
 
 ## Docker (quando disponível)
 

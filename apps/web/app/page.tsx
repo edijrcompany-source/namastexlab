@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 const API = process.env.NEXT_PUBLIC_AGENT_API_URL ?? "http://localhost:8010";
 
@@ -70,9 +71,28 @@ export default function Chat() {
     <main className="chat-wrap">
       <header className="topo">
         <h1>🚗 AutoSeguro</h1>
-        <span className={`estado ${handoff ? "handoff" : ""}`}>
-          {handoff ? `handoff: ${handoff.motivo}` : estado || "…"}
-        </span>
+        <div className="acoes">
+          <Link href="/handoffs" className="link-fila">fila</Link>
+          <button
+            className="exportar"
+            onClick={async () => {
+              if (!convId) return;
+              const r = await fetch(`${API}/conversations/${convId}/export?fmt=md`);
+              const texto = await r.text();
+              const url = URL.createObjectURL(new Blob([texto], { type: "text/markdown" }));
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `conversa-${convId}.md`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            exportar
+          </button>
+          <span className={`estado ${handoff ? "handoff" : ""}`}>
+            {handoff ? `handoff: ${handoff.motivo}` : estado || "…"}
+          </span>
+        </div>
       </header>
 
       <section className="msgs">

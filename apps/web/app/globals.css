@@ -44,6 +44,19 @@ body {
 }
 .estado.handoff { color: #fbbf24; }
 
+.acoes { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.exportar, .link-fila {
+  background: var(--bolha-agente);
+  border: 1px solid #2b4a7a;
+  color: var(--acento);
+  font-size: 0.72rem;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.exportar:hover, .link-fila:hover { border-color: var(--acento); }
+
 .msgs { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 8px 2px; overflow-y: auto; }
 
 .bolha {
@@ -115,3 +128,16 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ── fila de handoffs (T-12) ── */
+.fila-wrap { max-width: 680px; margin: 0 auto; padding: 16px 14px 40px; display: flex; flex-direction: column; gap: 12px; }
+.fila-topo { display: flex; align-items: center; gap: 12px; }
+.fila-topo h1 { font-size: 1.05rem; }
+.voltar { color: var(--acento); font-size: 0.85rem; text-decoration: none; }
+.vazia { color: #5a6c93; text-align: center; padding: 40px 0; }
+.card { background: var(--painel); border: 1px solid #24365a; border-radius: 14px; padding: 12px 14px; }
+.card-topo { display: flex; justify-content: space-between; align-items: center; }
+.status { font-size: 0.68rem; color: #fbbf24; border: 1px solid #a97c2f; padding: 2px 8px; border-radius: 999px; }
+.resumo { color: #b9c8e4; font-size: 0.88rem; margin: 8px 0; }
+.card-rodape { display: flex; justify-content: space-between; font-size: 0.72rem; color: #5a6c93; }
+.card-rodape a { color: var(--acento); }
