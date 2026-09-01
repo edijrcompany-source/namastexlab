@@ -65,7 +65,7 @@ make mock             # Prism mock do agent-api em :4010 (front anda sem back)
 make dev              # compose: agent-api(8001) + quote-api(8000) + postgres
 make bronze           # regenera dataset Bronze (seed 42, do repo do desafio)
 make silver           # Bronze → Silver (masking + normalização)
-make test             # pytest + coverage gate ≥90% (lógica determinística)
+make test             # pytest + coverage gate ≥99% (lógica determinística)
 make evals            # extração/handoff/adversarial (20 ataques, 0/20)
 make fmt && make lint # ruff + eslint/prettier + import-linter
 ```

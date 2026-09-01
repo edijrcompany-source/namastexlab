@@ -28,7 +28,7 @@ surgir 2º consumidor da agent-api (app mobile, outro BFF).
 
 ```
 services/agent-api/tests/
-├── unit/         (regra pura — TDD estrito; coverage gate 90% — NFR-16)
+├── unit/         (regra pura — TDD estrito; coverage gate 99% — NFR-16)
 ├── integration/  (compose: Postgres real + worker + endpoints)
 └── contract/     (drift + fixtures do legado + eventos vs schemas)
 
