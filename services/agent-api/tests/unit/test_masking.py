@@ -7,6 +7,7 @@ Regras de ouro testadas aqui:
 - mask_for_output = itens 1-5 (CEP mascarado em logs/timeline/saídas);
 - idempotência (mascarar 2x = mesmo resultado — NFR-12 depende disso).
 """
+
 import pytest
 
 from app.privacy.masking import mask_for_llm, mask_for_output
@@ -62,7 +63,8 @@ class TestCep:
 
     def test_cep_inTEGRO_antes_do_llm(self) -> None:
         # spec §3: CEP vai íntegro ao LLM (necessário à qualificação/cotação)
-        assert mask_for_llm("CEP 01310-100 e cpf 389.083.863-43") == "CEP 01310-100 e cpf ***.***.***-43"
+        texto = "CEP 01310-100 e cpf 389.083.863-43"
+        assert mask_for_llm(texto) == "CEP 01310-100 e cpf ***.***.***-43"
 
 
 @pytest.mark.unit
@@ -78,7 +80,8 @@ class TestOrdemEComposicao:
 
     def test_pii_multipla_na_mesma_mensagem(self) -> None:
         texto = "meu email é ursula.souza@gmail.com e o whats é esse mesmo +55 21 97224-2584"
-        assert mask_for_output(texto) == "meu email é u***@gmail.com e o whats é esse mesmo +55 21 *****-2584"
+        esperado = "meu email é u***@gmail.com e o whats é esse mesmo +55 21 *****-2584"
+        assert mask_for_output(texto) == esperado
 
 
 @pytest.mark.unit
