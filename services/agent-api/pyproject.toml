@@ -3,7 +3,23 @@ name = "agent-api"
 version = "0.1.0"
 description = "AutoSeguro Sales Agent — monolito modular (ver AGENTS.md e docs/)"
 requires-python = ">=3.12"
-# deps de aplicação chegam com T-01 (scaffold) — este arquivo hoje carrega o TOOLING (Etapa 13)
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "httpx>=0.28",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+    "import-linter>=2.1",
+    "pip-audit>=2.7",
+    "mutmut>=3.1",
+]
 
 [tool.ruff]
 line-length = 100
@@ -60,6 +76,7 @@ source_modules = ["app.conversation", "app.llm", "app.quoting", "app.handoff", "
 forbidden_modules = ["app.api"]
 
 [tool.pytest.ini_options]
+pythonpath = ["."]
 testpaths = ["tests"]
 addopts = "-q --strict-markers --strict-config"
 markers = [
@@ -75,5 +92,8 @@ omit = ["app/__main__*"]
 
 [tool.coverage.report]
 # Gate NFR-16: >=90% na logica deterministica (modulo a modulo, ver Etapa 14 §2)
-fail_under = 90
+fail_under = 99
 show_missing = true
+
+[tool.uv]
+package = false
