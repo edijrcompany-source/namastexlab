@@ -5,7 +5,10 @@ git (datas/horas reais dos commits) comprova o log em tempo real.
 Versões refinadas: gramática corrigida + precisão técnica (intenção original preservada).
 Guia de produção: [`../COMO-PRODUZIR.md`](../COMO-PRODUZIR.md)
 
-| N | Slug | Categoria | Commit |
+**Ferramenta**: `python scripts/register_prompt.py <slug> <categoria> <texto>` —
+1ª ação de TODO novo prompt (regra de negócio: file + índice + commit + push).
+
+| N | Slug | Arquivo | Commit |
 |---|---|---|---|
 | p01 | analise-seguranca-desafio | ver arquivo | `60f8351` |
 | p02 | adocao-guia-processo | ver arquivo | `8d86384` |
@@ -47,4 +50,8 @@ Guia de produção: [`../COMO-PRODUZIR.md`](../COMO-PRODUZIR.md)
 | p38 | checagem-engine | ver arquivo | `2cbc11b` |
 | p39 | virtualizacao | ver arquivo | `9a3ffc5` |
 | p40 | certificacao-final | ver arquivo | `0427dd9` |
+| p41 | status-obs-ci-cobertura | ver arquivo | `5a98723` |
+| p42 | regra-registrar-prompts | ver arquivo | `2552c06` |
+| p43 | melhoria-ux-bug-loop | ver arquivo | `dadf302` |
+| p44 | fix-yaml-frontmatter | ver arquivo | `1554b18` |
 | p45 | regra-registro-dinamico | ver arquivo | `fd89bb6` |
