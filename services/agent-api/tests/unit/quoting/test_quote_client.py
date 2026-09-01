@@ -3,7 +3,7 @@ e a classificação de erros da etapa-6 §3.2 (422=negócio sem retry · 400=bug
 5xx/timeout=transiente com retry · breaker conta SÓ transiente).
 
 Inclui a simulação do NFR-04: 1.000 cotações com p_falha=0.30/tentativa ⇒
-sucesso eventual ≥95% (matemática: 1−0.3³=97.3%).
+sucesso eventual >=95% (matematica: 1 - 0.3^3 = 97.3%).
 """
 
 import random
@@ -53,7 +53,7 @@ def make_acl(
         breaker=CircuitBreaker(clock=clock or FakeClock()),
         clock=clock or FakeClock(),
         sleeper=sleeper,
-        rng=rng or random.Random(0),
+        rng=rng or random.Random(0),  # noqa: S311
     )
     return acl, sleeper
 
@@ -92,9 +92,9 @@ class TestRetryTransiente:
         assert len(sleeper.delays) == 2
 
     def test_backoff_exponencial_com_jitter_deterministico(self) -> None:
-        rng = random.Random(7)
+        rng = random.Random(7)  # noqa: S311
         j1, j2 = rng.uniform(0, 250), rng.uniform(0, 250)  # mesma sequência do client
-        acl, sleeper = make_acl(_503, rng=random.Random(7))
+        acl, sleeper = make_acl(_503, rng=random.Random(7))  # noqa: S311
         with pytest.raises(TransientQuoteError):
             acl.cotar(PAYLOAD)
         # sleeper recebe SEGUNDOS (spec §2 em ms → s)
@@ -207,7 +207,7 @@ class TestSimulacaoNfr04:
         Clock fake avança 60s por request: entre cotações o cooldown (30s) do
         breaker sempre vence — a simulação exercita retry + breaker juntos.
         """
-        rng = random.Random(42)
+        rng = random.Random(42)  # noqa: S311
         rolls = [rng.random() for _ in range(4000)]
         box = {"i": 0}
         clock = FakeClock()
