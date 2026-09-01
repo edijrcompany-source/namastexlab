@@ -1,4 +1,5 @@
 """Fábrica da app FastAPI — monta as bordas (routers) + CORS (origem exata)."""
+
 import os
 
 from fastapi import FastAPI

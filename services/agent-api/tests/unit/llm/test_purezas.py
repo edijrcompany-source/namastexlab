@@ -6,11 +6,11 @@ from typing import ClassVar
 
 import pytest
 
+from app.domain.extraction import Campos, extrair_campos
 from app.domain.ids import ulid
+from app.domain.price_guard import contem_valor_monetario, validar_resposta
 from app.formatting import format_brl
 from app.i18n import t
-from app.llm.extraction import Campos, extrair_campos
-from app.llm.price_guard import contem_valor_monetario, validar_resposta
 
 
 @pytest.mark.unit

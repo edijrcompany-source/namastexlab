@@ -4,7 +4,7 @@ rejeição com cotação, fallbacks e efeitos não-textuais."""
 import pytest
 
 from app.conversation.state_machine import Efeito, Estado
-from app.llm.price_guard import validar_resposta
+from app.domain.price_guard import validar_resposta
 from tests.unit.conversation.test_orchestrator import orquestrador
 
 

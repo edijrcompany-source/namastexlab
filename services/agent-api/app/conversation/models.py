@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
 from app.conversation.state_machine import Estado
-from app.llm.extraction import Campos
+from app.domain.extraction import Campos
 
 
 def _agora() -> datetime:

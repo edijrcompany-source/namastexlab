@@ -3,10 +3,10 @@
 import httpx
 import pytest
 
+from app.domain.ports import TurnoLLM
 from app.formatting import format_brl
 from app.i18n import _caminho_catalogo, carregar
 from app.llm.fake import FakeLLM
-from app.llm.port import TurnoLLM
 from tests.unit.conversation.test_orchestrator import StubACL, orquestrador
 
 

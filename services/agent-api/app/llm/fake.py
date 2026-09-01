@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import re
 
-from app.llm.extraction import Campos, extrair_campos
-from app.llm.port import TurnoLLM
+from app.domain.extraction import Campos, extrair_campos
+from app.domain.ports import TurnoLLM
 
 _HUMANO = re.compile(r"\b(humana?|pessoa|atendente|vendedor)\b", re.IGNORECASE)
 _OBJECAO = re.compile(

@@ -18,8 +18,8 @@ from typing import Any
 
 import httpx
 
+from app.domain.ports import QuoteClientBug, QuoteRefused, TransientQuoteError
 from app.quoting.breaker import CircuitBreaker
-from app.quoting.exceptions import QuoteClientBug, QuoteRefused, TransientQuoteError
 
 
 @dataclass(frozen=True)

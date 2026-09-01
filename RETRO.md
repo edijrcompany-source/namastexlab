@@ -36,6 +36,8 @@ implementação que o satisfaz é da IA** (Etapa 14 §3).
 | L1 | Decisão "sem staging" (Etapa 8) era fraca vs. requisito do guia | Etapa 17 adotou staging + deixou nota no doc antigo |
 | L2 | Convenção de commits divergia do padrão do guia | Etapa 13 reescreveu regra do AGENTS.md + commitlint custom |
 | L3 | Rennumeração do guia (18→21 etapas) quebrou referências cruzadas | Tabela de mapeamento no docs/README.md — aprendizado: processo também precisa de changelog |
+| L4 | **import-linter pegou o núcleo importando bordas** (orchestrator → llm/quoting) — o contrato C4 §3 vale desde a 1ª linha | Refactor T-09: portas/exceções/extração/price-guard migrados para `domain/` (onde contratos moram); bordas só implementam |
+| L5 | **Pipe `\| tail` mascarou exit code do ruff** 2× e commit saiu com gate vermelho | Gates agora verificados com `echo EXIT=$?` explícito (nunca pipe antes de `&&`); lição registrada no AGENTS? Não — no fluxo: sempre exit code |
 
 ## O que faria diferente 🔄 (⏳ atualizar na entrega)
 

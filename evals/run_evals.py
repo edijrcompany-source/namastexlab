@@ -17,7 +17,7 @@ from app.conversation.models import Conversa  # noqa: E402
 from app.conversation.orchestrator import TurnOrchestrator  # noqa: E402
 from app.conversation.state_machine import Estado, Evento, transitar  # noqa: E402
 from app.llm.fake import FakeLLM  # noqa: E402
-from app.llm.price_guard import contem_valor_monetario, validar_resposta  # noqa: E402
+from app.domain.price_guard import contem_valor_monetario, validar_resposta  # noqa: E402
 
 
 class ACLPadrao:

@@ -1,7 +1,8 @@
 """Price-guard com /planos como fonte legítima (spec §6.8) — T-09/T-10."""
+
 import pytest
 
-from app.llm.price_guard import validar_resposta
+from app.domain.price_guard import validar_resposta
 
 PLANOS = [
     {"nome": "Essencial", "base_mensal": 119.90, "franquia": 4500.0},

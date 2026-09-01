@@ -9,12 +9,12 @@ from __future__ import annotations
 
 from app.conversation.models import Conversa, Mensagem
 from app.conversation.state_machine import Efeito, Estado, Evento, criar_conversa, transitar
+from app.domain.extraction import Campos
 from app.domain.ids import ulid
+from app.domain.ports import LLMPort
 from app.events.store import InMemoryStore, Store
 from app.formatting import format_brl
 from app.i18n import carregar, t
-from app.llm.extraction import Campos
-from app.llm.port import LLMPort
 from app.privacy.masking import mask_for_llm, mask_for_output
 
 
@@ -122,7 +122,7 @@ class TurnOrchestrator:
         return self._intent_para_evento(conversa, turno.intent), turno.resposta
 
     def _guard_violado(self, conversa: Conversa, resposta: str) -> bool:
-        from app.llm.price_guard import validar_resposta
+        from app.domain.price_guard import validar_resposta
 
         return resposta != "" and not validar_resposta(resposta, conversa.cotacoes)
 
@@ -199,7 +199,7 @@ class TurnOrchestrator:
 
     # ── cotação via ACL (spec §2) ────────────────────────────────────────
     def _cotar(self, conversa: Conversa) -> None:
-        from app.quoting.exceptions import QuoteRefused, TransientQuoteError
+        from app.domain.ports import QuoteRefused, TransientQuoteError
 
         payload = {
             "plano_id": "essencial",

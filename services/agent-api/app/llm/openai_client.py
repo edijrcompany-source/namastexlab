@@ -12,8 +12,8 @@ from pathlib import Path
 
 import httpx
 
-from app.llm.extraction import Campos
-from app.llm.port import TurnoLLM
+from app.domain.extraction import Campos
+from app.domain.ports import TurnoLLM
 
 
 def _system_prompt(caminhos_extra: list | None = None) -> str:
@@ -57,7 +57,7 @@ class OpenAIClient:
         mensagem: str,
         aviso_correcao: bool = False,
     ) -> TurnoLLM:
-        from app.llm.extraction import Campos as _Campos
+        from app.domain.extraction import Campos as _Campos
 
         dados = dados or _Campos()  # porta tolera ausência (mesma semântica do FakeLLM)
         user = json.dumps(

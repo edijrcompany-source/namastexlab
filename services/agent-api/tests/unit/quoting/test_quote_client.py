@@ -13,9 +13,9 @@ from typing import Any
 import httpx
 import pytest
 
+from app.domain.ports import QuoteClientBug, QuoteRefused, TransientQuoteError
 from app.quoting.breaker import CircuitBreaker
 from app.quoting.client import QuoteAcl, QuoteAclConfig
-from app.quoting.exceptions import QuoteClientBug, QuoteRefused, TransientQuoteError
 
 
 class FakeClock:

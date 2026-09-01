@@ -9,8 +9,8 @@ from __future__ import annotations
 import os
 
 from app.conversation.orchestrator import TurnOrchestrator
+from app.domain.ports import LLMPort
 from app.llm.fake import FakeLLM
-from app.llm.port import LLMPort
 from app.quoting.client import QuoteAcl, QuoteAclConfig
 
 

@@ -42,9 +42,7 @@ def _valores_validos(cotacoes: list[dict], planos: list[dict] | None = None) -> 
     return validos
 
 
-def validar_resposta(
-    resposta: str, cotacoes: list[dict], planos: list[dict] | None = None
-) -> bool:
+def validar_resposta(resposta: str, cotacoes: list[dict], planos: list[dict] | None = None) -> bool:
     """True se TODO R$ citado tem origem na API (cotações e/ou /planos).
 
     Sem cotação nem plano na conversa ⇒ qualquer R$ é violação (guardrail da

@@ -7,10 +7,10 @@ API existir (T-07 só expõe o que aqui já funciona).
 import pytest
 
 from app.conversation.orchestrator import TurnOrchestrator
+from app.domain.ports import QuoteRefused, TransientQuoteError
 from app.i18n import carregar
 from app.llm.fake import FakeLLM
 from app.quoting.breaker import CircuitBreaker
-from app.quoting.exceptions import QuoteRefused, TransientQuoteError
 
 COTACAO_OK = {
     "plano_id": "essencial",
