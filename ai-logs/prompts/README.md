@@ -1,6 +1,6 @@
 # Índice dos prompts da sessão (registro incremental)
 
-44 prompts do autor, registrados **um commit por prompt** — o histórico do
+45 prompts do autor, registrados **um commit por prompt** — o histórico do
 git (datas/horas reais dos commits) comprova o log em tempo real.
 Versões refinadas: gramática corrigida + precisão técnica (intenção original preservada).
 Guia de produção: [`../COMO-PRODUZIR.md`](../COMO-PRODUZIR.md)
@@ -47,3 +47,4 @@ Guia de produção: [`../COMO-PRODUZIR.md`](../COMO-PRODUZIR.md)
 | p38 | checagem-engine | ver arquivo | `2cbc11b` |
 | p39 | virtualizacao | ver arquivo | `9a3ffc5` |
 | p40 | certificacao-final | ver arquivo | `0427dd9` |
+| p45 | regra-registro-dinamico | ver arquivo | `fd89bb6` |
