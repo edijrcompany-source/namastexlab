@@ -12,7 +12,7 @@ info:
     - IDs públicos são ULID (26 chars, Crockford Base32).
     - Fluxo de consumo: front gera types (openapi-typescript) → mock Prism →
       drift test no CI (openapi.json da app vs este YAML).
-  contact: { name: Namastex FDE Challenge — entrega }
+  contact: { name: "Namastex FDE Challenge — entrega", url: "https://github.com/edijrcompany-source/namastexlab" }
 servers:
   - url: http://localhost:8001
     description: dev local (docker compose)
@@ -32,6 +32,9 @@ paths:
       tags: [conversas]
       operationId: criarConversa
       summary: Cria conversa vazia (aguarda primeira mensagem)
+      description: |
+        Abre uma conversa em QUALIFICANDO e devolve a saudação canônica
+        (spec §6.1). Correlation ID opcional via header (Etapa 6 §2).
       responses:
         "201":
           description: Conversa criada em QUALIFICANDO
@@ -52,6 +55,9 @@ paths:
       tags: [conversas]
       operationId: obterConversa
       summary: Timeline completa (PII mascarada) — rastreabilidade total
+      description: |
+        Reconstitui a conversa: mensagens, eventos (seq ordenado), cotações,
+        handoff. Toda saída passa pelo masking §3 (NFR-12).
       responses:
         "200":
           description: Timeline com mensagens, eventos, cotações e handoff
@@ -63,6 +69,9 @@ paths:
       tags: [conversas]
       operationId: apagarConversa
       summary: Direito à eliminação (LGPD) — apaga conversa e eventos em cascata
+      description: |
+        Requer ADMIN_TOKEN (Etapa 10 §3). Apaga a conversa e todo o histórico
+        associado (cascata da Etapa 8).
       security: [{ adminToken: [] }]
       responses:
         "204": { description: Apagada }
@@ -112,7 +121,7 @@ paths:
                   value:
                     conversation_id: "01J8Z9C3K5M7P9R2T4V6W8YBAA"
                     estado: "QUALIFICANDO"
-                    reply: { role: "agente", tipo: "text", texto: "Oi! Pra cotar preciso: veículo com ano, sua idade e o CEP onde o carro dorme." }
+                    reply: { role: "agente", tipo: "text", texto: "Oi! Pra cotar preciso: veículo com ano, sua idade e o CEP onde o carro dorme.", criado_em: "2026-09-01T12:00:05Z" }
                     eventos:
                       - { seq: 2, type: "message_in", payload: { texto: "oi, quero cotar um seguro" }, criado_em: "2026-09-01T12:00:03Z" }
                       - { seq: 3, type: "message_out", payload: { estado: "QUALIFICANDO" }, criado_em: "2026-09-01T12:00:05Z" }
@@ -123,7 +132,7 @@ paths:
                   value:
                     conversation_id: "01J8Z9C3K5M7P9R2T4V6W8YBAA"
                     estado: "COTACAO_APRESENTADA"
-                    reply: { role: "agente", tipo: "text", texto: "Plano Essencial: R$ 155,87/mês, franquia R$ 4.500, cobre colisão, roubo e furto. Roubo e furto passam a valer após 30 dias de carência. Te interessa?" }
+                    reply: { role: "agente", tipo: "text", texto: "Plano Essencial: R$ 155,87/mês, franquia R$ 4.500,00, cobre colisão, roubo e furto. Roubo e furto passam a valer após 30 dias de carência. Te interessa?", criado_em: "2026-09-01T12:02:12Z" }
                     eventos:
                       - { seq: 9, type: "quote_succeeded", payload: { quote_id: "01J8ZA...", tentativas: 1, duracao_ms: 412 }, criado_em: "2026-09-01T12:02:11Z" }
                       - { seq: 10, type: "quote_presented", payload: { premio_mensal: 155.87 }, criado_em: "2026-09-01T12:02:12Z" }
@@ -138,17 +147,25 @@ paths:
                       carencia: { coberturas: ["roubo", "furto"], dias: 30 }
                       pro_rata: null
                       moeda: "BRL"
+                      tentativas: 1
+                      duracao_ms: 412
                     handoff: null
                 handoff:
                   summary: Handoff por aceite (C1 final)
                   value:
                     conversation_id: "01J8Z9C3K5M7P9R2T4V6W8YBAA"
                     estado: "HANDOFF"
-                    reply: { role: "agente", tipo: "text", texto: "Fechado! Vou passar pra um vendedor finalizar a emissão. Já já te chamam." }
+                    reply: { role: "agente", tipo: "text", texto: "Fechado! Vou passar pra um vendedor finalizar a emissão. Já já te chamam.", criado_em: "2026-09-01T12:04:02Z" }
                     eventos:
                       - { seq: 14, type: "handoff_requested", payload: { motivo: "aceite_fechamento" }, criado_em: "2026-09-01T12:04:01Z" }
                     cotacao: null
-                    handoff: { id: "01J8ZB...", motivo: "aceite_fechamento", status: "pendente" }
+                    handoff:
+                      id: "01J8ZBQ4T7X9M2K6P8R0V3WYAC"
+                      conversation_id: "01J8Z9C3K5M7P9R2T4V6W8YBAA"
+                      motivo: "aceite_fechamento"
+                      resumo: "Onix 2022, 30 anos, CEP 01***-***. Cotação essencial R$ 155,87 aceita."
+                      criado_em: "2026-09-01T12:04:01Z"
+                      status: "pendente"
         "404": { $ref: "#/components/responses/Problem" }
         "422": { $ref: "#/components/responses/Problem" }
 
@@ -162,6 +179,9 @@ paths:
       tags: [conversas]
       operationId: exportarConversa
       summary: Log de execução exportável (entregável do desafio) — PII mascarada
+      description: |
+        fmt=json devolve a timeline; fmt=md devolve markdown legível com o
+        correlation id (Etapa 6 §6). É o artefato "log de execução" da entrega.
       responses:
         "200":
           description: Artefato de export
@@ -177,6 +197,9 @@ paths:
       tags: [handoffs]
       operationId: listarHandoffs
       summary: Fila de handoffs pendentes (ordenada por criação)
+      description: |
+        Conversas transferidas a vendedor humano, com motivo (enum §5.3) e
+        resumo mascarado. Consumida pela página /handoffs do front.
       responses:
         "200":
           description: Fila
@@ -193,13 +216,16 @@ paths:
                 fila:
                   value:
                     items:
-                      - { id: "01J8ZB...", conversation_id: "01J8Z9...", motivo: "aceite_fechamento", resumo: "Onix 2022, 30 anos, CEP 01***-***. Cotação essencial R$ 155,87 aceita.", criado_em: "2026-09-01T12:04:01Z", status: "pendente" }
+                      - { id: "01J8ZBQ4T7X9M2K6P8R0V3WYAC", conversation_id: "01J8Z9C3K5M7P9R2T4V6W8YBAA", motivo: "aceite_fechamento", resumo: "Onix 2022, 30 anos, CEP 01***-***. Cotação essencial R$ 155,87 aceita.", criado_em: "2026-09-01T12:04:01Z", status: "pendente" }
 
   /health:
     get:
       tags: [sistema]
       operationId: health
       summary: Saúde do agente e do legado (ping cacheado 30s)
+      description: |
+        Sempre 200 com estado detalhado; legado degradado não derruba o agente
+        (degradação graceful — etapa-6 §5).
       responses:
         "200":
           description: Sempre 200 com estado detalhado

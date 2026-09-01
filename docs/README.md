@@ -51,6 +51,8 @@ regras invioláveis e protocolo para agentes de IA.
 | 6 | [`etapa-6-erros-resiliencia.md`](./fase-1-design-e-contratos/etapa-6-erros-resiliencia.md) | RFC 7807 + correlation ID · catálogo de erros estáveis · matriz de resiliência por dependência (legado/LLM/DB) · idempotência · front error states |
 | 7 | [`etapa-7-i18n.md`](./fase-1-design-e-contratos/etapa-7-i18n.md) | ADR-0009 pt-BR único · catálogo único API↔front · formatos centralizados · lint zero-string · pseudo-locale |
 | 7 | [`../../messages/pt-BR.json`](../../messages/pt-BR.json) | Catálogo v1: `agent.*` (24 canônicas) · `api.erro.*` (6) · `ui.*` (~30) — **na raiz do repo** |
+| — | [`deploy-demo.md`](./deploy-demo.md) | **Runbook dos seus 15 min**: branch protection, secrets, Railway/Vercel, reativação dos pipelines, rehearsal de rollback + decisão Postgres= dívida |
+| — | [`testar-local.md`](./testar-local.md) | Como rodar e testar TUDO local (sem Docker) — C1..C6, testes, evals, TRA |
 | 8 | [`etapa-8-modelo-de-dados.md`](./fase-1-design-e-contratos/etapa-8-modelo-de-dados.md) | ERD DBML (4 tabelas + 4 enums) · Alembic + expand-migrate-contract · purga LGPD · restore testado |
 | 9 | [`etapa-9-mensageria.md`](./fase-1-design-e-contratos/etapa-9-mensageria.md) | ADR-0010 sem broker · outbox transacional · worker retry_quote (lease/SKIP LOCKED) · DLQ · 6 eventos públicos versionados (PII-safe) |
 | 10 | [`etapa-10-threat-model.md`](./fase-1-design-e-contratos/etapa-10-threat-model.md) | STRIDE 16 ameaças · política de segredos + rotação · auth entre serviços · ASVS L1 · scans obrigatórios (gitleaks/CodeQL/semgrep/audit) · OWASP LLM |

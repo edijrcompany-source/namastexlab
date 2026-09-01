@@ -16,6 +16,11 @@ info:
       `QUOTE_SLOW_SECONDS`, `QUOTE_SEED` (reprodutível)
     Nosso client tipado (`quoting/`) e os fixtures de teste derivam DAQUI.
     Se o legado mudar de forma quebrante, o contract test detecta antes do deploy.
+  contact: { name: "agent-api (consumidor)", url: "https://github.com/edijrcompany-source/namastexlab" }
+tags:
+  - name: legado
+    description: Operações do sistema legado de cotação (as-consumed)
+
 servers:
   - url: http://quote-api:8000
     description: rede interna (compose/Railway)
@@ -26,6 +31,8 @@ paths:
   /health:
     get:
       operationId: healthLegado
+      tags: [legado]
+      description: Sempre estável — usado pelo /health composto do agent-api.
       responses:
         "200":
           description: Sempre estável
@@ -39,7 +46,11 @@ paths:
   /planos:
     get:
       operationId: listarPlanos
+      tags: [legado]
       summary: Tabela de planos e regras (usado na rebatida de objeção — US-09)
+      description: |
+        plans.json integral — única fonte de planos (regra 1 do AGENTS.md).
+        Franquias/bases são origem legítima para o price-guard (§6.8).
       responses:
         "200":
           description: plans.json integral
@@ -50,7 +61,11 @@ paths:
   /quote:
     post:
       operationId: cotar
+      tags: [legado]
       summary: Calcula a cotação (comportamento probabilístico descrito acima)
+      description: |
+        422 = recusa de NEGÓCIO (sem retry) · 5xx/timeout = transiente (retry
+        com backoff + breaker — spec §2). cálculo puro ⇒ idempotente.
       requestBody:
         required: true
         content:

@@ -45,6 +45,11 @@ implementação que o satisfaz é da IA** (Etapa 14 §3).
 - ⏳ Onde a spec errou por excesso/ausência e exigiu PR de correção
 - ⏳ Tempos reais: planejamento (21 etapas) vs. implementação vs. entregáveis
 
+## ai-logs (T-17)
+
+Export da colaboração commitado em `ai-logs/2026-09-01-implementacao-zcode.md`
+(método, sessões, incidentes de processo) — scan de segredos: **0 achados**.
+
 ## Incidentes e postmortems ⏳
 
 Nenhum incidente real até aqui (sistema ainda não implantado). Ensaio de

@@ -16,13 +16,13 @@
 | 2 | Requisitos e NFRs | 🟢 | 18 NFRs com nº+instrumento · 16 US testáveis · matriz rastreabilidade | — |
 | 3 | Especificação | 🟢 | Spec §1-12: estados, parâmetros, formatos, 20 ataques, C1-C6 | — |
 | 4 | Arquitetura e ADRs | 🟢 | 11 ADRs c/ alternativas · C4 níveis 1-3 · regras de dependência | — |
-| 5 | Contratos API | 🟜 | 2 OpenAPI 3.1 + fluxo lint/codegen/drift desenhado | Gates bloqueiam no 1º pipeline — **T-01** |
+| 5 | Contratos API | 🟢 | spectral **0 erros** (evidência local) + codegen rodando (`apps/web/src/types/api.d.ts`, 494 linhas commitadas) | drift-test no app liga no 1º PR (workflow pronto) |
 | 6 | Erros e resiliência | 🟢 | 13 erros catalogados · matriz 4 dependências · correlation ID no contrato | — |
 | 7 | Internacionalização | 🟜 | Catálogo 60+ chaves · ADR-0009 · pseudo-locale especificado | jsx-no-literal AST + pseudo-locale rodam sobre código — **T-02/T-11** |
 | 8 | Dados e migrações | 🟜 | ERD DBML · EMC · purga LGPD · procedimento restore | up/down em dados reais + restore ensaiado — **T-06/T-15** |
 | 9 | Mensageria | 🟜 | ADR-0010 · lease/SKIP LOCKED · DLQ · 2 testes nomeados | `test_worker_kill_and_resume` + `test_poison_message_dlq` verdes — **worker (Épico B)** |
 | 10 | Segurança | 🟜 | STRIDE 16 ameaças · política segredos · scans definidos blocker | gitleaks/CodeQL/audit executam no repo real — **T-01** |
-| 11 | Spec de desenvolvimento | 🟢 | 17 tasks · grafo sem ciclos (etapa-3) · teste mapeado por item (matriz etapa-2 §5) | — |
+| 11 | Spec de desenvolvimento | 🟢 | 17 tasks · grafo sem ciclos · **T-01..T-16 executados** (T-14/T-15 externos com runbook `docs/deploy-demo.md`) | — |
 | 12 | Repo e contexto | 🟜 | AGENTS.md v2 · quiz 10 perguntas · onboarding ~55min | Quiz verificado com 1º agente de implementação — **T-01+** |
 | 13 | Documentação viva | 🟜 | Portal VitePress + 5 runbooks + Mermaid + Redoc (`make docs-*`) | Publicação real (GH Pages) no 1º merge na main — **repo GitHub** |
 | 14 | Padronização | 🟜 | ruff/import-linter/eslint/commitlint gitmoji · catraca zero-aviso | Hooks ativam no `git init`; CI valida range do PR — **T-01** |
@@ -31,8 +31,8 @@
 | 17 | CI/CD | 🟜 | 4 workflows · 10 gates · rollback automático LAST_GOOD_TAG | Ativação (repo+branch protection) + rehearsal de rollback — **T-14/T-15** |
 | 18 | Ambientes e IaC | 🟜 | tofu módulo+envs · plan-em-PR · apply c/ approval · drift diário | 1º apply real + 1ª detecção de drift — **T-15** |
 | 19 | Observabilidade | 🟜 | 4 SLOs · 9 alertas↔runbook · OTel correlation ID ponta a ponta | 1º trace real + ensaio de incidente (4 simulações) — **T-07/T-15** |
-| 20 | Evals de IA | 🟜 | golden/ (20 ataques jsonl + seeds) · job bloqueante · FinOps c/ 2 alertas | Números E1-E4 + custo/conversa medidos — **T-09/T-10** |
-| 21 | Governança de IA | 🟜 | Trilha auditável · dupla barreira ai-logs · prompt v1+changelog · SBOM allowlist | ai-logs reais acumulam na implementação · SBOM no 1º release |
+| 20 | Evals de IA | 🟢 | **E1 100% · E2 100% · E3 20/20** (runner `evals/run_evals.py`, gates) + **TRA 96,5%** (bateria 200, T-16) | LLM-real + custo: job noturno pós-deploy |
+| 21 | Governança de IA | 🟢 | **ai-logs/ sanitizados commitados** (scan 0 segredos) · trilha auditável (commits TDD no git) · SBOM no 1º release (workflow pronto) | — |
 | 22 | Retro e postmortems | 🟢 | RETRO.md viva (loops L1-L3 reais) · template blameless 48h · DORA step no CI | postmortem real = pós-incidente (ensaio T-15 gera o 1º exercício) |
 
 ## Veredicto da revisão
