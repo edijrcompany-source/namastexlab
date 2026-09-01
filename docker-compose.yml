@@ -1,0 +1,77 @@
+##############################################################################
+# Ambiente de dev/e2e com UM comando em qualquer máquina (Etapa 15).
+# Perfis:  (default) dev completo  ·  observability (+jaeger)
+# Seed de determinismo p/ e2e:  QUOTE_SEED=42 docker compose up  (spec §2)
+# Nota: agent-api builda a partir do T-01 (app/) — até lá: make dev-deps
+##############################################################################
+name: namastex-fde
+
+services:
+  agent-api:
+    build: ./services/agent-api
+    ports: ["8001:8001"]
+    environment:
+      QUOTE_API_URL: http://quote-api:8000
+      DATABASE_URL: postgresql://autoseguro:autoseguro@postgres:5432/autoseguro
+      LLM_API_KEY: ${LLM_API_KEY:-}          # dev sem LLM → FakeLLM/fallback canônico
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      MASKING_STRICT: "true"
+      # resiliência (spec §2 / etapa-6 §4.1) — defaults explícitos
+      QUOTE_TIMEOUT_MS: "3000"
+      QUOTE_MAX_ATTEMPTS: "3"
+      CB_THRESHOLD: "5"
+      CB_COOLDOWN_S: "30"
+      CB_SUCCESSES_TO_CLOSE: "2"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      # OpenTelemetry (Etapa 18) — SDK único p/ traces+metricas+logs.
+      # Sem o perfil observability, endpoint vazio = SDK desligado (zero custo em dev simples)
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_SERVICE_NAME: agent-api
+      OTEL_TRACES_SAMPLER: ${OTEL_TRACES_SAMPLER:-parentbased_always_on}
+    depends_on:
+      postgres: { condition: service_healthy }
+      quote-api: { condition: service_started }
+    restart: unless-stopped
+
+  quote-api:
+    build: ./quote-service                     # Dockerfile DO DESAFIO — intocado
+    ports: ["8000:8000"]
+    environment:
+      QUOTE_FAILURE_RATE: "${QUOTE_FAILURE_RATE:-0.20}"
+      QUOTE_SLOW_RATE: "${QUOTE_SLOW_RATE:-0.10}"
+      QUOTE_SLOW_SECONDS: "${QUOTE_SLOW_SECONDS:-8}"
+      QUOTE_SEED: "${QUOTE_SEED:-}"             # 42 = falhas determinísticas (e2e C4/C5)
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: autoseguro
+      POSTGRES_PASSWORD: autoseguro            # dev apenas — prod é secret Railway (etapa-10 §3)
+      POSTGRES_DB: autoseguro
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autoseguro -d autoseguro"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  migrations:
+    build: ./services/agent-api                # mesma imagem (multi-destino) como job efêmero
+    command: ["alembic", "upgrade", "head"]    # no Railway: pre-deploy command (etapa-8 §4)
+    environment:
+      DATABASE_URL: postgresql://autoseguro:autoseguro@postgres:5432/autoseguro
+    depends_on:
+      postgres: { condition: service_healthy }
+    profiles: [migrate]                        # docker compose run --rm migrations
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.62
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports: ["16686:16686"]
+    profiles: [observability]                  # docker compose --profile observability up
+
+volumes:
+  pgdata:

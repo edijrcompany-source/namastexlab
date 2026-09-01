@@ -1,0 +1,63 @@
+# Noturno — a suíte completa (Etapa 14 §6): e2e determinístico (QUOTE_SEED=42),
+# mutation testing, evals com LLM real, build das docs. Meta: <10 min (portão).
+name: nightly
+
+on:
+  schedule: [{ cron: "0 3 * * *" }] # 03:00 UTC = 00:00 BRT
+  workflow_dispatch:
+
+permissions: { contents: read }
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: npm i -g pnpm && pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: compose e2e (legado determinístico — C4/C5 estáveis)
+        run: QUOTE_SEED=42 docker compose up -d --build
+      - name: aguardar health do agent-api
+        run: |
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:8001/health && break || sleep 2
+          done
+      - name: Playwright C1-C6 + visual regression
+        run: cd e2e && pnpm exec playwright test critical-flows.spec.ts
+      - name: artefatos em falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: playwright-report, path: e2e/playwright-report/ }
+
+  mutation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - name: mutmut no núcleo (score >=60% — Etapa 14 §5)
+        run: cd services/agent-api && uv sync --dev && uv run mutmut run --paths-to-mutate app/conversation,app/privacy,app/quoting
+      - name: resultado
+        if: always()
+        run: cd services/agent-api && uv run mutmut results || true
+
+  evals-real:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - name: evals com LLM REAL (extração/handoff/20 ataques — Etapa 19)
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: make evals
+
+  docs-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: npm i -g pnpm && pnpm install --frozen-lockfile
+      - name: portal + Redoc (Etapa 12 — docs que não apodrecem)
+        run: make docs-api && make docs-build

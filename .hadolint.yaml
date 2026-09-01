@@ -1,0 +1,5 @@
+# Hadolint — regras do Dockerfile (Etapa 15). Tudo como erro (catraca da Etapa 13).
+ignored:
+  - DL3006       # tag explícita via ARG de build onde aplicável (usamos tags fixas)
+  - DL3059       # RUN --mount do BuildKit é suportado (falso positivo clássico)
+failure-threshold: error

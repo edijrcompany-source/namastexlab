@@ -1,0 +1,125 @@
+# Release (push na main) — trunk-based: PR já passou pelos gates; aqui é
+# fast-track + deploy com CANÁRIO/SMOKE e ROLLBACK AUTOMÁTICO (portão Etapa 16).
+# Ordem: testes rápidos → build+push imagem (GHCR, tag sha) → deploy Railway
+# (pre-deploy roda migrations — etapa-8) → smoke na demo → falha? rollback.
+name: release
+
+on:
+  push: { branches: [main] }
+
+permissions: { contents: read, packages: write }
+
+jobs:
+  fast-track:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: autoseguro, POSTGRES_PASSWORD: autoseguro, POSTGRES_DB: autoseguro_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U autoseguro" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://autoseguro:autoseguro@localhost:5432/autoseguro_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - run: cd services/agent-api && uv sync --dev && uv run pytest -m "unit or contract" -q
+
+  build-push:
+    needs: fast-track
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: build & push (tag = sha — IMAGEM ÚNICA multi-destino, Etapa 15)
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/agent-api:${{ github.sha }} services/agent-api
+          docker push ghcr.io/${{ github.repository }}/agent-api:${{ github.sha }}
+
+  # SBOM + licenças (Etapa 20 §4): inventário do que foi entregue.
+  sbom:
+    needs: build-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: syft — SBOM da imagem (SPDX JSON)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+          syft ghcr.io/${{ github.repository }}/agent-api:${{ github.sha }} -o spdx-json > sbom-agent-api.json
+      - name: política de licenças (allowlist — copyleft em runtime = conflito)
+        run: |
+          LICENSES=$(python3 -c "import json;print(' '.join(sorted({l.get('license','') for p in json.load(open('sbom-agent-api.json'))['packages'] for l in p.get('licenses',[])})))")
+          echo "Licenças encontradas: $LICENSES"
+          BAD=$(echo "$LICENSES" | grep -oiE 'GPL-[0-9.]+(-only|-or-later)?|AGPL-[0-9.]+|SSPL-[0-9.]+' || true)
+          if [ -n "$BAD" ]; then echo "❌ Licença copyleft em runtime: $BAD — conflito (Etapa 20 §4)"; exit 1; fi
+      - uses: actions/upload-artifact@v4
+        with: { name: sbom, path: sbom-agent-api.json }
+
+  deploy-smoke-rollback:
+    needs: build-push
+    runs-on: ubuntu-latest
+    environment: demo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: npm i -g pnpm && pnpm install --frozen-lockfile && pnpm exec playwright install chromium
+
+      - name: deploy Railway (pre-deploy roda alembic upgrade head)
+        env: { RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN }}" }
+        run: |
+          npm i -g @railway/cli
+          railway up --service agent-api --ci          # imagem do GHCR desta sha
+
+      # Vercel: deploy do front por integração de repo (preview por PR é default);
+      # produção promove automaticamente na main — smoke valida os DOIS.
+
+      - name: smoke pós-deploy (health + turno real — falha = rollback)
+        run: |
+          cd e2e && AGENT_API_URL=$DEMO_AGENT_API_URL E2E_BASE_URL=$DEMO_WEB_URL \
+            pnpm exec playwright test smoke.spec.ts
+        env:
+          DEMO_AGENT_API_URL: ${{ vars.DEMO_AGENT_API_URL }}
+          DEMO_WEB_URL: ${{ vars.DEMO_WEB_URL }}
+
+      - name: 🔄 ROLLBACK AUTOMÁTICO (smoke falhou)
+        if: failure()
+        env:
+          RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN }}"
+          VERCEL_TOKEN: "${{ secrets.VERCEL_TOKEN }}"
+          LAST_GOOD: "${{ vars.LAST_GOOD_TAG }}"
+        run: |
+          echo "Smoke falhou — voltando para a última versão boa ($LAST_GOOD)"
+          railway up --service agent-api --ci --image ghcr.io/${{ github.repository }}/agent-api:$LAST_GOOD || true
+          npx vercel rollback --yes --token "$VERCEL_TOKEN" || true
+          exit 1
+
+      - name: registrar última versão boa (smoke verde)
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.updateRepoVariable({
+              owner: context.repo.owner, repo: context.repo.repo,
+              name: "LAST_GOOD_TAG", value: "${{ github.sha }}"
+            });
+
+      # DORA (Etapa 21 §2): 4 números por release — registrado no summary e copiado p/ RETRO.md
+      - name: DORA — lead time deste release
+        if: success()
+        run: |
+          COMMIT_TS=$(git show -s --format=%ct ${{ github.sha }})
+          NOW=$(date +%s)
+          LEAD_MIN=$(( (NOW - COMMIT_TS) / 60 ))
+          {
+            echo "## 📊 DORA — release ${{ github.sha }}"
+            echo "- **Lead time (commit→smoke verde):** ${LEAD_MIN} min"
+            echo "- **Change failure:** ${{ job.status == 'success' && 'não (smoke verde)' || 'sim — rollback executado' }}"
+            echo "- Copiar linha para a tabela DORA em \`RETRO.md\`"
+          } >> "$GITHUB_STEP_SUMMARY"

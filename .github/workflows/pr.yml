@@ -1,0 +1,142 @@
+# Pipeline de PR — trunk-based (branches curtos, PRs pequenos, merge cedo).
+# Meta: VERDE EM <5 MIN (NFR-17). Gates paralelos onde não há dependência.
+# Regra da Fase 3: PR (inclusive de IA) = gate verde + revisão humana (branch protection).
+name: pr
+
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore: ["docs/**", "**/*.md"]
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Gate 1: LINT + PADRÃO ──────────────────────────────────────────────
+  # Classe de defeito: estilo/estrutura (import-linter = arquitetura C4!),
+  # commit fora do padrão gitmoji, Dockerfile inseguro.
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: npm i -g pnpm && pnpm install --frozen-lockfile
+      - uses: astral-sh/setup-uv@v4
+      - name: commitlint (range do PR — gitmoji+inglês, Etapa 13)
+        run: pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to HEAD --verbose
+      - name: lint (ruff + eslint + import-linter + pre-commit all — catraca)
+        run: |
+          cd services/agent-api && uv sync --dev
+          cd ../.. && make lint
+      - name: hadolint (Etapa 15)
+        run: make lint-docker
+
+  # ── Gate 2: CONTRATOS (Etapa 5) ────────────────────────────────────────
+  # Classe de defeito: contrato quebrado em silêncio; types editados à mão.
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: npm i -g pnpm && pnpm install --frozen-lockfile
+      - name: spectral lint + codegen check (types nunca editados à mão)
+        run: make contracts-lint && make codegen && git diff --exit-code apps/web/src/types/
+
+  # ── Gate 3: SEGURANÇA (Etapa 10) ───────────────────────────────────────
+  # Classe de defeito: segredo vazado (inclusive ai-logs/), CWE, CVE de dep.
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: gitleaks (repo + histórico + ai-logs/)
+        uses: gitleaks/gitleaks-action@v2
+        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+      - name: pip-audit (CVE crítica = blocker)
+        run: |
+          cd services/agent-api && uv sync --dev && uv run pip-audit --strict
+      - name: npm audit (high+ = blocker)
+        run: pnpm audit --audit-level=high
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions: { security-events: write, contents: read }
+    strategy:
+      matrix: { language: [python-javascript] }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with: { languages: python, javascript }
+      - uses: github/codeql-action/analyze@v3
+
+  # ── Gate 4: TESTES (Etapa 14 — matriz: unit+integration+contract+componente) ──
+  # Classe de defeito: regra de negócio errada, integração quebrada, contrato
+  # drift, componente sem papel semântico. E2E fica p/ noturno/release (tempo).
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: autoseguro, POSTGRES_PASSWORD: autoseguro, POSTGRES_DB: autoseguro_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U autoseguro" --health-interval 5s
+          --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://autoseguro:autoseguro@localhost:5432/autoseguro_test
+      QUOTE_API_URL: http://localhost:8000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: npm i -g pnpm && pnpm install --frozen-lockfile
+      - name: pytest (unit + integration + contract — coverage gate 90%)
+        run: cd services/agent-api && uv sync --dev && uv run pytest -m "unit or integration or contract" --cov --cov-fail-under=90
+      - name: vitest (utils + componentes Testing Library)
+        run: pnpm --filter web test -- --run
+
+  # ── Gate 6: EVALS (Etapa 19) ───────────────────────────────────────────
+  # Classe de defeito: regressão de comportamento da IA.
+  # PRs comuns: E3/E4 com FakeLLM (offline). PR que toca prompts/**: suíte
+  # E1+E2+E3 com LLM REAL — prompt é código, muda pela suíte (portão Etapa 19).
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - name: evals determinísticos (FakeLLM) — adversarial 0/20 + price-guard 0
+        run: cd services/agent-api && uv sync --dev && uv run pytest -m evals -q
+
+  evals-prompts:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.requested_files != null && contains(join(github.event.pull_request.labels.*.name, ' '), 'prompt')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+      - name: golden com LLM REAL (mudança de prompt = mudança de comportamento)
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: make evals
+        # Nota: trigger fino por paths de prompts/** configurado via
+        # `dorny/paths-filter` quando o repo existir — regra registrada na etapa-19 §3.
+
+  # ── Gate 5: BUILD + SCAN (Etapa 15) ────────────────────────────────────
+  # Classe de defeito: imagem com CVE crítica, build que não reproduz.
+  build-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build da imagem (multi-stage não-root)
+        run: docker build -t agent-api:pr services/agent-api
+      - name: trivy (CRITICAL,HIGH = blocker)
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+          trivy image --exit-code 1 --severity CRITICAL,HIGH --ignore-unfixed agent-api:pr

@@ -1,0 +1,79 @@
+# Regras de alerta VERSIONADAS (Etapa 18 §4) — formato PrometheusRule,
+# compatível com Grafana Cloud. Cada alerta TEM runbook (docs/runbooks.md).
+# Política: warning = mesmo dia · critical = ação imediata · zero alerta informativo.
+groups:
+  - name: autoseguro-agent-slo
+    interval: 30s
+    rules:
+      # SLO-4 — zero-tolerance (NFR-09): 1 ocorrência = incidente
+      - alert: PrecoSemOrigem
+        expr: increase(price_guard_violation_total[5m]) >= 1
+        labels: { severity: critical, slo: "4" }
+        annotations:
+          summary: "LLM tentou apresentar preço que não veio da API (guardrail pegou)"
+          runbook: docs/runbooks.md#rb-05
+
+      - alert: DBIndisponivel
+        expr: increase(turno_errors_total{code="servico-indisponivel"}[5m]) > 5
+        labels: { severity: critical }
+        annotations:
+          summary: "Postgres fora — turnos falhando atômicos (503)"
+          runbook: docs/runbooks.md#rb-05 → RB-01 se persistir
+
+      # SLO-1 — disponibilidade da demo (ping externo: Better Stack; regra interna de reforço)
+      - alert: DemoDown
+        expr: avg_over_time(health_ok[5m]) < 0.5
+        labels: { severity: critical, slo: "1" }
+        annotations:
+          summary: "/health falhando — demo indisponível"
+          runbook: docs/runbooks.md#rb-03
+
+      - alert: LegadoCircuitoAberto
+        expr: increase(circuit_state_changed_total{to="open"}[15m]) > 2
+        labels: { severity: warning }
+        annotations:
+          summary: "Circuito do legado aberto 2x em 15min — degradação ativa (graceful ok)"
+          runbook: docs/runbooks.md#rb-05
+
+      # SLO-2 — latência do turno (NFR-01)
+      - alert: TurnoLento
+        expr: histogram_quantile(0.95, rate(turno_duration_bucket[10m])) > 8
+        labels: { severity: warning, slo: "2" }
+        annotations:
+          summary: "p95 do turno > 8s — trace aponta o span (LLM vs legado vs DB)"
+          runbook: docs/runbooks.md#rb-05
+
+      - alert: LLMIndisponivel
+        expr: |
+          sum(rate(llm_unavailable_total[30m])) / sum(rate(turno_total[30m])) > 0.10
+        labels: { severity: warning }
+        annotations:
+          summary: ">10% dos turnos sem LLM (fallback canônico ativo) — verificar key/status"
+          runbook: docs/runbooks.md#rb-02
+
+      # SLO-3 — métrica norte (medida diária; análise profunda na Etapa 19)
+      - alert: TRAReprovada
+        expr: tra_diaria_percent < 70
+        for: 2h
+        labels: { severity: warning, slo: "3" }
+        annotations:
+          summary: "TRA diária abaixo de 70% — evals apontam onde a autonomia caiu"
+          runbook: docs/runbooks.md#rb-05 (tabela de sintomas)
+
+  # ── FinOps de token (Etapa 19 §4 — NFR-15: ≤US$0,10/conversa · ≤US$5/mês) ──
+  - name: autoseguro-finops-llm
+    interval: 5m
+    rules:
+      - alert: CustoConversaAcima
+        expr: avg_over_time(llm_cost_usd_per_conversa[7d]) > 0.10
+        labels: { severity: warning }
+        annotations:
+          summary: "Custo médio por conversa > US$0,10 — revisar histórico/contexto do prompt (12 turnos, max_tokens)"
+          runbook: docs/runbooks.md#rb-05 → alavancas na etapa-19 §4
+
+      - alert: OrcamentoLLMEstourado
+        expr: sum(increase(llm_cost_usd_total[30d])) > 5.0
+        labels: { severity: critical }
+        annotations:
+          summary: "Orçamento mensal de LLM (US$5) estourado — NFR-15"
+          runbook: docs/runbooks.md#rb-02 (troca de modelo por env é config — ADR-0005)

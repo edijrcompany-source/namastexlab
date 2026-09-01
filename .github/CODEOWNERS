@@ -1,0 +1,7 @@
+# Revisão humana obrigatória (regra da Fase 3 + portão Etapa 16):
+# branch protection exige 1 approval — CODEOWNERS garante o reviewer certo.
+# Ativar no GitHub: Settings → Branches → main →
+#   ✓ Require a pull request before merging (1 approval, dismiss stale)
+#   ✓ Require status checks: lint, contracts, security, codeql, test, build-scan
+#   ✓ Require linear history · bloquear force-push
+* @namastex-lab

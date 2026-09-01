@@ -17,8 +17,9 @@ out/
 .turbo/
 *.tsbuildinfo
 
-# Dataset (gerado por script — make bronze/silver; nunca commitado)
-dataset/
+# Dataset (gerado por script — make bronze/silver; README versionado)
+dataset/*
+!dataset/README.md
 
 # env / secrets (NUNCA commitar — gitleaks varre o histórico)
 .env

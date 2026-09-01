@@ -1,0 +1,94 @@
+# Infra como código (Etapa 17): plan em PR, apply com aprovação, drift noturno.
+# Atlantis-like sem Atlantis — mesmo controle, zero servidores (justificado na etapa-17 §3).
+name: infra
+
+on:
+  pull_request:
+    paths: ["infra/**"]
+  push:
+    branches: [main]
+    paths: ["infra/**"]
+  schedule: [{ cron: "0 4 * * *" }] # drift check diário 04:00 UTC
+  workflow_dispatch:
+
+permissions: { contents: read, issues: write, pull-requests: write }
+
+env:
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  plan:
+    if: github.event_name == "pull_request"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with: { tofu_version: "1.8.*" }
+      - name: plan de cada ambiente (revisável no PR)
+        env:
+          RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN_STG }}"
+          VERCEL_API_TOKEN: "${{ secrets.VERCEL_TOKEN }}"
+        run: |
+          for env in staging production; do
+            echo "## tofu plan — $env" >> plan.md
+            (cd infra/envs/$env && tofu init -input=false && tofu plan -input=false -no-color) >> plan.md 2>&1
+          done
+      - name: comentar plan no PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = (fs.existsSync('plan.md') ? fs.readFileSync('plan.md','utf8') : 'plan falhou').slice(0, 60000);
+            await github.rest.issues.createComment({
+              ...context.repo, issue_number: context.issue.number,
+              body: `### 🏗️ tofu plan (revisão obrigatória — Etapa 17)\n\`\`\`hcl\n${body}\n\`\`\``
+            });
+
+  apply:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: infra # ← APROVAÇÃO HUMANA obrigatória (GitHub Environment reviewers)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with: { tofu_version: "1.8.*" }
+      - name: apply (staging → produção)
+        env:
+          RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN_STG }}"
+          VERCEL_API_TOKEN: "${{ secrets.VERCEL_TOKEN }}"
+        run: |
+          cd infra/envs/staging && tofu init -input=false && tofu apply -auto-approve -input=false
+          cd ../production && tofu init -input=false && tofu apply -auto-approve -input=false
+
+  drift:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with: { tofu_version: "1.8.*" }
+      - name: detecção de drift (exit 2 = divergiu do declarado)
+        env:
+          RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN_STG }}"
+          VERCEL_API_TOKEN: "${{ secrets.VERCEL_TOKEN }}"
+        run: |
+          DRIFTED=""
+          for env in staging production; do
+            (cd infra/envs/$env && tofu init -input=false >/dev/null && tofu plan -input=false -detailed-exitcode -no-color) || code=$?
+            if [ "${code:-0}" = "2" ]; then DRIFTED="$DRIFTED $env"; fi
+          done
+          if [ -n "$DRIFTED" ]; then
+            echo "DRIFT em:$DRIFTED" && exit 3
+          fi
+      - name: abrir issue de drift
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.create({
+              ...context.repo,
+              title: `[drift] infra divergiu do declarado (${new Date().toISOString().slice(0,10)})`,
+              body: 'Configuração manual fora do PR detectada. Corrigir via PR (reverter OU codificar) — ver docs/fase-3-build-e-release/etapa-17-ambientes.md §5.',
+              labels: ['drift', 'infra']
+            });
