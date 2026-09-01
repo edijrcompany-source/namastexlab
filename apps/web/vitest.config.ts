@@ -8,7 +8,14 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
     globals: true,
-    include: ["**/*.test.tsx"],
+    include: ["**/*.test.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      include: ["app/**/*.{ts,tsx}"],
+      exclude: ["app/**/*.test.tsx", "app/**/*.stories.tsx", "types/**"],
+      thresholds: { lines: 80, functions: 80 }, // export handler (URL.createObjectURL) not jsdom-testable
+      reporter: ["text", "json-summary"],
+    },
   },
   resolve: {
     alias: { "@": path.resolve(__dirname, ".") },

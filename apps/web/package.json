@@ -10,7 +10,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build"
+    "storybook:build": "storybook build",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "next": "14.2.35",
@@ -27,6 +28,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^6.1.1",
+    "@vitest/coverage-v8": "^4.1.11",
     "jsdom": "^30.0.1",
     "storybook": "^10.5.10",
     "typescript": "^5",

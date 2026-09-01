@@ -13,8 +13,10 @@ from app.api.deps import obter_orchestrator
 from app.conversation.models import Conversa
 from app.events.store import Store
 from app.i18n import carregar, t
+from app.observability import get_logger, set_conversation_id, set_correlation_id
 
 router = APIRouter()
+log = get_logger(__name__)
 
 
 class MensagemIn(BaseModel):
@@ -49,7 +51,10 @@ def criar_conversa(
 ) -> dict:
     orch = obter_orchestrator()
     correlation = x_correlation_id or str(uuid.uuid4())
+    set_correlation_id(correlation)
     conversa = orch.iniciar(correlation_id=correlation)
+    set_conversation_id(conversa.id)
+    log.info("conversation_started", extra={"conversation_id": conversa.id})
     return {
         "conversation_id": conversa.id,
         "estado": conversa.estado.value,
