@@ -1,0 +1,25 @@
+{
+  "name": "namastex-fde",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "20" },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers-extra/features/pnpm:2": {}
+  },
+  "postCreateCommand": "pip install --user uv && make help",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "charliermarsh.ruff",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "remoteEnv": {
+    "NAMASTEX_CHALLENGE_DIR": "${localEnv:NAMASTEX_CHALLENGE_DIR}"
+  },
+  "forwardPorts": [8000, 8001, 4010, 5432]
+}

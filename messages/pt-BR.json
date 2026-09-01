@@ -1,0 +1,106 @@
+{
+  "$meta": {
+    "locale": "pt-BR",
+    "version": "1.0.0",
+    "placeholders": "{nome}",
+    "nota": "Fonte única de mensagens de API + front + canônicas do Agente (ADR-0009). Materializa spec §6 e catálogo de erros da Etapa 6. Chaves nunca mudam de significado; textos podem ser revistos (semver de contrato aplica)."
+  },
+
+  "agent": {
+    "saudacao": "Oi! Que bom te ver por aqui. Pra cotar seu seguro eu preciso de três coisas: o veículo com o ano, a sua idade e o CEP de onde o carro dorme.",
+    "pedir_campo": {
+      "veiculo": "Qual a marca, modelo e ano do seu carro?",
+      "idade": "E a sua idade?",
+      "cep": "Por último: qual o CEP de onde o carro dorme?",
+      "data_inicio": "Quer dizer a data de início da vigência? (opcional — formato AAAA-MM-DD)"
+    },
+    "eco_confirmacao": "Confirmando: veículo {veiculo}, {idade} anos, CEP {cep}. É isso?",
+    "midia_nao_suportada": "Não consigo abrir {tipo_midia} daqui. Pode me escrever a informação?",
+    "recusa_idade": "Poxa, nosso limite de aceitação vai até 75 anos — pela regra da seguradora eu não consigo cotar. Se quiser, te passo pra um vendedor pra revisar seu caso.",
+    "recusa_veiculo": "Entendi o carro, mas veículos com mais de 20 anos não são aceitos pela seguradora. Se quiser uma segunda opinião, te encaminho pra um vendedor.",
+    "recusa_plano_inexistente": "Esse plano não existe. As opções são Essencial, Completo e Premium.",
+    "falha_tecnica_honesta": "O sistema de cotação está instável agora. Já registrei seu pedido e vou tentar de novo em instantes — não vou te deixar sem resposta.",
+    "retentativa_agendada": "Ainda tentando contato com o sistema de cotação. Assim que sair o valor eu te chamo.",
+    "handoff_geral": "Vou te encaminhar para um vendedor humano, que continua daqui. Já já te respondem.",
+    "handoff_aceite": "Fechado! 🎉 Vou passar pra um vendedor finalizar a emissão da apólice. Já já te chamam.",
+    "handoff_humano_imediato": "Claro! Vou te conectar com uma pessoa agora mesmo.",
+    "handoff_falha_tecnica": "O sistema de cotação não respondeu dessa vez. Vou te encaminhar pra um vendedor com todo o seu contexto pra não repetir nada.",
+    "handoff_objecao": "Beleça, entendi. Vou chamar um vendedor pra ver o melhor pra você.",
+    "handoff_fora_escopo": "Isso fica fora do que eu consigo fazer por aqui. Vou encaminhar pra um humano te ajudar melhor.",
+    "objecao_rebatida_intro": "Entendo o valor. Deixa eu te mostrar uma comparação real entre os planos pra você decidir:",
+    "encerramento_perdido": "Tudo bem! Se mudar de ideia, é só me chamar. 🙂",
+    "aguardando_humano_idempotente": "Já te encaminhei para um vendedor — ele já já te responde por aqui.",
+    "fora_escopo_redirect": "Por aqui eu só coto seguro de veículo. Posso te ajudar com uma cotação?",
+    "llm_fallback_ocupado": "Dá só um instante que eu organizo as informações aqui…",
+    "cotacao_apresentacao_fallback": "Saiu a cotação! Plano {plano_nome}: {premio}/mês, franquia de {franquia}, cobrindo {coberturas}. Roubo e furto passam a valer após {carencia_dias} dias de carência.",
+    "cotacao_prorata_linha": "Como a vigência começa no meio do mês, o primeiro pagamento sai proporcional: {valor_primeiro} ({dias_cobrados} dias cobrados)."
+  },
+
+  "api.erro": {
+    "conversa_nao_encontrada": {
+      "title": "Conversa não encontrada",
+      "detail": "Não achamos essa conversa. Ela pode ter sido apagada ou o link está incorreto."
+    },
+    "payload_invalido": {
+      "title": "Payload inválido",
+      "detail": "A mensagem não passou na validação. Envie 'text' OU ('media_type' + 'media_marker'), com até 4.000 caracteres."
+    },
+    "limite_taxa_excedido": {
+      "title": "Muitas mensagens seguidas",
+      "detail": "Calma lá! 😅 Aguarde um minuto e tente de novo."
+    },
+    "nao_autorizado": {
+      "title": "Operação administrativa",
+      "detail": "Esta operação exige token de administração."
+    },
+    "servico_indisponivel": {
+      "title": "Sistema temporariamente indisponível",
+      "detail": "Estamos com uma indisponibilidade momentânea. Tente novamente em instantes."
+    },
+    "erro_interno": {
+      "title": "Algo saiu do ar do nosso lado",
+      "detail": "Já registramos o problema. Use o código de suporte exibido ao tentar novamente."
+    }
+  },
+
+  "ui": {
+    "common": {
+      "enviar": "Enviar",
+      "tentar_novamente": "Tentar de novo",
+      "copiar": "Copiar",
+      "copiado": "Copiado!",
+      "carregando": "Carregando…",
+      "voltar": "Voltar"
+    },
+    "chat": {
+      "titulo": "AutoSeguro — Agente de vendas",
+      "placeholder_input": "Escreva sua mensagem…",
+      "pensando": "pensando…",
+      "cotando": "cotando (tentativa {tentativa} de 3)…",
+      "circuito_aberto": "sistema de cotação indisponível — tentando de novo",
+      "digitando": "Agente digitando…",
+      "cotacao": "Cotação {plano_nome}",
+      "premio_mensal": "Prêmio mensal",
+      "franquia": "Franquia",
+      "coberturas": "Coberturas",
+      "carencia": "Carência de {dias} dias (roubo/furto)",
+      "prorata": "1º pagamento proporcional: {valor} ({dias} dias)",
+      "handoff_banner": "Conversa transferida para um vendedor humano 👤",
+      "exportar": "Exportar conversa",
+      "nova_conversa": "Nova conversa",
+      "correlation_rodape": "código da sessão: {correlation_id}"
+    },
+    "handoffs": {
+      "titulo": "Fila de handoffs",
+      "vazia": "Nenhuma conversa aguardando — fila limpa ✨",
+      "motivo": "Motivo",
+      "esperando_ha": "esperando há {tempo}",
+      "abrir_conversa": "Abrir conversa"
+    },
+    "erros": {
+      "banner": "Opa, algo saiu do ar do nosso lado 🙈 Já registramos com o código {correlation_id}. Tenta de novo em instantes — ou atualiza a página.",
+      "boundary_titulo": "Essa tela deu pau",
+      "boundary_corpo": "Não se preocupe, sua conversa está salva. Use o código {correlation_id} se precisar de suporte."
+    }
+  }
+}

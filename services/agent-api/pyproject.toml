@@ -1,0 +1,79 @@
+[project]
+name = "agent-api"
+version = "0.1.0"
+description = "AutoSeguro Sales Agent — monolito modular (ver AGENTS.md e docs/)"
+requires-python = ">=3.12"
+# deps de aplicação chegam com T-01 (scaffold) — este arquivo hoje carrega o TOOLING (Etapa 13)
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["."]
+
+[tool.ruff.lint]
+# Catraca (Etapa 13 §3): toda regra é ERRO — sem baseline, repo novo sem dívida.
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort (imports ordenados)
+    "B",    # bugbear (bugs comuns)
+    "UP",   # pyupgrade (sintaxe moderna)
+    "SIM",  # simplificações
+    "C4",   # comprehensions
+    "RUF",  # regras ruff
+    "ASYNC",# async correto
+    "S",    # bandit-lite (segurança — Etapa 10)
+    "T20",  # sem print (usa logging)
+]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]  # assert é o ponto em testes
+
+[tool.ruff.format]
+quote-style = "double"
+
+# --- import-linter: contratos do C4 nível 3 (ADR-0002) como código (Etapa 13 §4) ---
+[tool.importlinter]
+root_packages = ["app"]
+
+[[tool.importlinter.contracts]]
+name = "Core (conversation) nao conhece bordas — usa portas"
+type = "forbidden"
+source_modules = ["app.conversation"]
+forbidden_modules = ["app.api", "app.llm", "app.quoting", "app.handoff"]
+
+[[tool.importlinter.contracts]]
+name = "Privacy e puro — nada alem de domain"
+type = "forbidden"
+source_modules = ["app.privacy"]
+forbidden_modules = [
+    "app.api", "app.conversation", "app.llm",
+    "app.quoting", "app.handoff", "app.events",
+]
+
+[[tool.importlinter.contracts]]
+name = "Borda api e folha — ninguem importa para dentro dela"
+type = "forbidden"
+source_modules = ["app.conversation", "app.llm", "app.quoting", "app.handoff", "app.events", "app.privacy", "app.domain"]
+forbidden_modules = ["app.api"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers --strict-config"
+markers = [
+    "unit: logica pura, sem I/O",
+    "contract: valida contratos (openapi/eventos) — Etapa 5",
+    "integration: com Postgres/compose — Etapa 14",
+    "evals: suite de IA — Etapa 19",
+]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/__main__*"]
+
+[tool.coverage.report]
+# Gate NFR-16: >=90% na logica deterministica (modulo a modulo, ver Etapa 14 §2)
+fail_under = 90
+show_missing = true

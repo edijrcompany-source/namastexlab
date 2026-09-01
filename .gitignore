@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.uv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+# Dataset (gerado por script — make bronze/silver; nunca commitado)
+dataset/
+
+# env / secrets (NUNCA commitar — gitleaks varre o histórico)
+.env
+.env.*
+*.key
+*.pem
+
+# OS / editores
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# ...mas os logs de IA são ENTREGÁVEL do desafio (ver README / Etapa 20)
+!ai-logs/**

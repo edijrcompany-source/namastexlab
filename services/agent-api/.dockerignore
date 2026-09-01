@@ -1,0 +1,13 @@
+# nada de contexto além do necessário (imagem reproduzível e cache-friendly)
+.venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.coverage
+htmlcov
+tests
+docs
+*.md
+.git
+.gitignore

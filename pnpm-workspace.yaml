@@ -1,0 +1,3 @@
+packages:
+  - "apps/*"
+  # hook futuro: - "packages/*" (ex.: types gerados como pacote compartilhado)
