@@ -3,27 +3,18 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
+import { Digitando, HandoffBanner, MessageBubble, QuoteCard, type Quote, type TurnoResponse } from "./components";
+
 const API = process.env.NEXT_PUBLIC_AGENT_API_URL ?? "http://localhost:8010";
 
 type Msg = { role: "lead" | "agente"; texto: string };
-type Quote = {
-  plano_nome: string;
-  premio_mensal: number;
-  franquia: number;
-  coberturas: string[];
-  carencia: { dias: number };
-} | null;
-type Handoff = { motivo: string } | null;
-
-const brl = (v: number) =>
-  v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 export default function Chat() {
   const [convId, setConvId] = useState<string | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [estado, setEstado] = useState("");
-  const [quote, setQuote] = useState<Quote>(null);
-  const [handoff, setHandoff] = useState<Handoff>(null);
+  const [quote, setQuote] = useState<Quote | null>(null);
+  const [handoff, setHandoff] = useState<{ motivo: string } | null>(null);
   const [pensando, setPensando] = useState(false);
   const [entrada, setEntrada] = useState("");
   const fim = useRef<HTMLDivElement>(null);
@@ -34,7 +25,8 @@ export default function Chat() {
       .then((c) => {
         setConvId(c.conversation_id);
         setEstado(c.estado);
-      });
+      })
+      .catch(() => setEstado("SEM_CONEXÃO — recarregue a página"));
   }, []);
 
   useEffect(() => {
@@ -53,9 +45,9 @@ export default function Chat() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: texto }),
         });
-        const body = await r.json();
+        const body: TurnoResponse = await r.json();
         setEstado(body.estado);
-        setQuote(body.cotacao ?? null);
+        setQuote((body.cotacao as Quote | null) ?? null);
         setHandoff(body.handoff ?? null);
         setMsgs((m) => [...m, { role: "agente", texto: body.reply?.texto ?? "…" }]);
       } catch {
@@ -95,31 +87,14 @@ export default function Chat() {
         </div>
       </header>
 
-      <section className="msgs">
+      <section className="msgs" aria-live="polite">
         {msgs.map((m, i) => (
-          <div key={i} className={`bolha ${m.role}`}>
-            {m.texto}
-          </div>
+          <MessageBubble key={i} role={m.role} texto={m.texto} />
         ))}
-        {pensando && <div className="bolha agente digitando">pensando…</div>}
+        {pensando && <Digitando />}
 
-        {quote && (
-          <div className="quote-card">
-            <strong>{quote.plano_nome}</strong>
-            <div className="premio">{brl(quote.premio_mensal)}/mês</div>
-            <div className="linha">franquia {brl(quote.franquia)}</div>
-            <div className="linha">{quote.coberturas.join(" · ")}</div>
-            <div className="linha carencia">
-              carência {quote.carencia.dias} dias (roubo/furto)
-            </div>
-          </div>
-        )}
-
-        {handoff && (
-          <div className="handoff-banner">
-            👤 Transferido para um vendedor humano — motivo: <b>{handoff.motivo}</b>
-          </div>
-        )}
+        {quote && <QuoteCard quote={quote} />}
+        {handoff && <HandoffBanner motivo={handoff.motivo} />}
         <div ref={fim} />
       </section>
 
@@ -135,6 +110,7 @@ export default function Chat() {
           onChange={(e) => setEntrada(e.target.value)}
           placeholder={handoff ? "aguardando vendedor…" : "Escreva sua mensagem…"}
           disabled={!!handoff}
+          aria-label="mensagem"
         />
         <button type="submit" disabled={!!handoff || pensando}>
           Enviar
