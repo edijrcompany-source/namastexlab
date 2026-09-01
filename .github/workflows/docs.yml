@@ -2,8 +2,8 @@
 # "Se não está publicado, não existe."
 name: docs
 
+# AUTO-PUBLISH desativado até T-01 (pnpm-lock.yaml inexistente). Reativar push na main no T-01.
 on:
-  push: { branches: [main] }
   workflow_dispatch:
 
 permissions: { contents: read, pages: write, id-token: write }

@@ -4,8 +4,10 @@
 # (pre-deploy roda migrations — etapa-8) → smoke na demo → falha? rollback.
 name: release
 
+# AUTO-DEPLOY DESATIVADO até o bootstrap (T-01: lockfiles + app/) — checklist-final §T-01.
+# Reativar `push: { branches: [main] }` no T-01 (guardo aqui).
 on:
-  push: { branches: [main] }
+  workflow_dispatch:
 
 permissions: { contents: read, packages: write }
 

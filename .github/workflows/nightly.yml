@@ -2,8 +2,8 @@
 # mutation testing, evals com LLM real, build das docs. Meta: <10 min (portão).
 name: nightly
 
+# AGENDAMENTO desativado até T-01 (suíte precisa de app/). Reativar cron no T-01.
 on:
-  schedule: [{ cron: "0 3 * * *" }] # 03:00 UTC = 00:00 BRT
   workflow_dispatch:
 
 permissions: { contents: read }

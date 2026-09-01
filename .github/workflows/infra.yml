@@ -2,13 +2,11 @@
 # Atlantis-like sem Atlantis — mesmo controle, zero servidores (justificado na etapa-17 §3).
 name: infra
 
+# push-apply e drift-diario desativados ate T-01 (sem tokens/infra provisionada).
+# PR plan mantido (so le o repo). Reativar push+schedule no T-15 (adocao de infra).
 on:
   pull_request:
     paths: ["infra/**"]
-  push:
-    branches: [main]
-    paths: ["infra/**"]
-  schedule: [{ cron: "0 4 * * *" }] # drift check diário 04:00 UTC
   workflow_dispatch:
 
 permissions: { contents: read, issues: write, pull-requests: write }
