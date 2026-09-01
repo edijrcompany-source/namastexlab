@@ -156,7 +156,7 @@ _TABELA: dict[tuple[Estado, Evento], Transicao] = {
         Estado.HANDOFF, (), handoff_motivo="inelegivel_contestado"
     ),
     (Estado.COTACAO_APRESENTADA, Evento.REJEITA_APOS_RECUSA): Transicao(
-        Estado.ENCERRADA_PERDIDO_INELIGIVEL, ()
+        Estado.ENCERRADA_PERDIDO_INELIGIVEL, (Efeito.ENCERRAR_PERDIDO,)
     ),
 }
 
