@@ -76,6 +76,17 @@ cd services/agent-api && uv run python ../../evals/bateria_tra.py 200
 
 *(sem `make` no Windows? use os comandos acima diretamente — equivalentes aos alvos do Makefile)*
 
-## Docker (quando disponível)
+## Docker (compose validado — engine aguarda WSL)
 
-`make dev` (compose completo com Postgres + perfis migrate/observability).
+Docker Desktop **já instalado** (CLI 29.7.2) e o `docker-compose.yml` **validado**
+(`docker compose config --services` → agent-api, quote-api, postgres).
+Para o engine subir, falta só o backend WSL (requer admin):
+
+```powershell
+# PowerShell COMO ADMINISTRADOR:
+wsl --install
+# reiniciar o Windows, abrir o Docker Desktop (aguarda "Engine running") e então:
+docker compose up --build     # ← os containers sobrem (equivalente ao make dev)
+```
+
+Sem make no Git Bash? `docker compose up --build` direto.
