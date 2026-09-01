@@ -1,0 +1,15 @@
+[project]
+name = "namastex-scripts"
+version = "0.1.0"
+description = "Pipelines de dados (Bronze→Silver) e ferramentas — T-08/spec §7"
+requires-python = ">=3.12"
+dependencies = [
+    "pandas>=2.2",
+    "pyarrow>=18.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3"]
+
+[tool.uv]
+package = false

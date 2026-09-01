@@ -37,11 +37,14 @@ scan: ## trivy na imagem — CVE CRITICA/HIGH = falha (portao Etapa 15)
 	docker build -t agent-api:scan services/agent-api
 	trivy image --exit-code 1 --severity CRITICAL,HIGH agent-api:scan
 
-bronze: ## regenera dataset Bronze (seed 42) — T-08
-	@echo "ERRO: alvo 'bronze' chega com a task T-08 (scripts/fetch_bronze). NAMASTEX_CHALLENGE_DIR aponta pro repo do desafio."; exit 1
+bronze: ## regenera dataset Bronze (seed 42, gerador do desafio) — T-08
+	CHALLENGE="$${NAMASTEX_CHALLENGE_DIR:-../namastex-fde-challenge}"; 	uv run --with pandas --with pyarrow python "$$CHALLENGE/scripts/generate_dataset.py" 		--n 2500 --seed 42 --out dataset/conversations.parquet
 
-silver: ## Bronze -> Silver (masking + normalizacao) — T-08
-	@echo "ERRO: alvo 'silver' chega com a task T-08 (scripts/build_silver.py)."; exit 1
+silver: ## Bronze -> Silver: masking §3 + normalização + relatório (spec §7) — T-08
+	uv run --project scripts python scripts/build_silver.py 		--bronze dataset/conversations.parquet --silver dataset/silver/conversations.parquet
+
+test-data: ## testes do pipeline de dados (scripts/tests)
+	cd scripts && uv run --group dev pytest tests/ -q
 
 test: ## pytest + coverage gate >=90% (logica deterministica) — Etapa 14
 	@echo "ERRO: alvo 'test' chega com a Etapa 14 (tests/ em services/agent-api)."; exit 1
