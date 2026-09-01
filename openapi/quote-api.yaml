@@ -1,0 +1,186 @@
+openapi: 3.1.0
+info:
+  title: quote-api (sistema legado) — contrato DO CONSUMIDOR
+  version: 1.0.0
+  summary: Documentação do provedor, escrita pelo consumidor (agent-api)
+  description: |
+    Contrato **as-consumed**: descreve exatamente o que o agent-api espera do
+    legado fornecido pelo desafio (`namastex-fde-challenge/quote-service/`).
+    Fonte: leitura do código (`main.py`, `quote_logic.py`) e `plans.json`.
+
+    **Comportamento observado (não-contratual, mas essencial):**
+    - 20% das chamadas retornam 500/502/503 (`upstream_unavailable`)
+    - 10% das chamadas dormem 8s (nosso timeout: 3s — spec §2)
+    - 422 = recusa de NEGÓCIO (inelegibilidade) — **não** é falha transiente
+    - Envs do legado: `QUOTE_FAILURE_RATE`, `QUOTE_SLOW_RATE`,
+      `QUOTE_SLOW_SECONDS`, `QUOTE_SEED` (reprodutível)
+    Nosso client tipado (`quoting/`) e os fixtures de teste derivam DAQUI.
+    Se o legado mudar de forma quebrante, o contract test detecta antes do deploy.
+servers:
+  - url: http://quote-api:8000
+    description: rede interna (compose/Railway)
+  - url: http://localhost:8000
+    description: dev local
+
+paths:
+  /health:
+    get:
+      operationId: healthLegado
+      responses:
+        "200":
+          description: Sempre estável
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties: { status: { type: string, const: ok } }
+
+  /planos:
+    get:
+      operationId: listarPlanos
+      summary: Tabela de planos e regras (usado na rebatida de objeção — US-09)
+      responses:
+        "200":
+          description: plans.json integral
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Planos" }
+
+  /quote:
+    post:
+      operationId: cotar
+      summary: Calcula a cotação (comportamento probabilístico descrito acima)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/QuoteRequest" }
+            examples:
+              tipico:
+                value: { plano_id: "completo", idade: 35, veiculo_ano: 2022, cep: "01310-100", data_inicio: "2026-07-15" }
+      responses:
+        "200":
+          description: Cotação calculada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cotacao" }
+              examples:
+                ok:
+                  value:
+                    plano_id: "completo"
+                    plano_nome: "Completo"
+                    premio_mensal: 272.87
+                    franquia: 3000
+                    coberturas: ["colisao", "roubo", "furto", "terceiros", "vidros"]
+                    multiplicadores: { faixa_etaria: 1.0, idade_veiculo: 1.0, regiao: 1.3 }
+                    carencia: { coberturas: ["roubo", "furto"], dias: 30, observacao: "Coberturas de roubo e furto so passam a valer apos a carencia, contada da data de inicio da vigencia." }
+                    primeiro_pagamento_pro_rata: { dias_no_mes: 31, dias_cobrados: 17, valor_primeiro_pagamento: 149.67 }
+                    moeda: "BRL"
+        "400":
+          description: payload_invalido (KeyError/ValueError/TypeError no legado)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErroLegado400" }
+        "422":
+          description: "cotacao_recusada — RECUSA DE NEGÓCIO: sem retry (spec §1.3)"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErroLegado422" }
+              examples:
+                idade:
+                  value: { error: "cotacao_recusada", motivo: "Idade acima do limite de aceitacao (75 anos)." }
+                veiculo:
+                  value: { error: "cotacao_recusada", motivo: "Veiculo com mais de 20 anos nao e aceito." }
+                plano:
+                  value: { error: "cotacao_recusada", motivo: "Plano 'gold' inexistente. Opcoes: essencial, completo, premium" }
+        "500": { $ref: "#/components/responses/UpstreamIndisponivel" }
+        "502": { $ref: "#/components/responses/UpstreamIndisponivel" }
+        "503": { $ref: "#/components/responses/UpstreamIndisponivel" }
+
+components:
+  responses:
+    UpstreamIndisponivel:
+      description: "Falha TRANSIENTE (20% das chamadas) → retry com backoff (spec §2)"
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [error, message]
+            properties:
+              error: { type: string, const: upstream_unavailable }
+              message: { type: string }
+
+  schemas:
+    QuoteRequest:
+      type: object
+      required: [idade, veiculo_ano]
+      properties:
+        plano_id: { type: string, default: essencial, enum: [essencial, completo, premium] }
+        idade: { type: integer, minimum: 0, maximum: 200 }
+        veiculo_ano: { type: integer, minimum: 1950, maximum: 2100 }
+        cep: { type: [string, "null"], pattern: "^\\d{5}-?\\d{3}$" }
+        data_inicio: { type: [string, "null"], format: date, description: "YYYY-MM-DD" }
+
+    Cotacao:
+      type: object
+      required: [plano_id, plano_nome, premio_mensal, franquia, coberturas, multiplicadores, carencia, moeda]
+      properties:
+        plano_id: { type: string }
+        plano_nome: { type: string }
+        premio_mensal: { type: number, multipleOf: 0.01 }
+        franquia: { type: number }
+        coberturas: { type: array, items: { type: string } }
+        multiplicadores:
+          type: object
+          properties:
+            faixa_etaria: { type: number }
+            idade_veiculo: { type: number }
+            regiao: { type: number }
+        carencia:
+          type: object
+          properties:
+            coberturas: { type: array, items: { type: string } }
+            dias: { type: integer }
+            observacao: { type: string }
+        primeiro_pagamento_pro_rata:
+          type: [object, "null"]
+          description: Presente somente quando data_inicio.dia ≠ 1
+          properties:
+            dias_no_mes: { type: integer }
+            dias_cobrados: { type: integer }
+            valor_primeiro_pagamento: { type: number }
+        moeda: { type: string, const: BRL }
+
+    ErroLegado400:
+      type: object
+      required: [error, detalhe]
+      properties:
+        error: { type: string, const: payload_invalido }
+        detalhe: { type: string }
+
+    ErroLegado422:
+      type: object
+      required: [error, motivo]
+      properties:
+        error: { type: string, const: cotacao_recusada }
+        motivo: { type: string }
+
+    Planos:
+      type: object
+      description: Estrutura integral de plans.json (planos + regras)
+      required: [moeda, planos, regras]
+      properties:
+        moeda: { type: string }
+        planos:
+          type: array
+          items:
+            type: object
+            required: [id, nome, base_mensal, franquia, coberturas]
+            properties:
+              id: { type: string }
+              nome: { type: string }
+              base_mensal: { type: number }
+              franquia: { type: number }
+              coberturas: { type: array, items: { type: string } }
+        regras: { type: object, additionalProperties: true }

@@ -1,0 +1,8 @@
+{"id": "ho-01", "estado": "COTACAO_APRESENTADA", "user_input": "fechado!", "expected": {"acao": "handoff", "motivo": "aceite_fechamento"}, "nota": "C1 final — parabeniza e transfere p/ emissão"}
+{"id": "ho-02", "estado": "OBJECAO", "user_input": "ainda acho caro, consegue desconto?", "expected": {"acao": "handoff", "motivo": "objecao_preco"}, "nota": "2ª objeção/pedido de desconto (spec §1.3)"}
+{"id": "ho-03", "estado": "COTACAO_APRESENTADA", "user_input": "quero falar com uma pessoa", "expected": {"acao": "handoff", "motivo": "preferencia_humana"}, "nota": "imediato — sem convencer (H5)"}
+{"id": "ho-04", "estado": "COTACAO_APRESENTADA", "user_input": "tenho certeza? conheço gente da sua idade que conseguiu", "contexto": {"recusa": "idade_acima_limite"}, "expected": {"acao": "handoff", "motivo": "inelegivel_contestado"}, "nota": "contesta recusa 422"}
+{"id": "ho-05", "estado": "COTACAO_APRESENTADA", "contexto": {"circuito_reaberturas": 2}, "expected": {"acao": "handoff", "motivo": "falha_tecnica"}, "nota": "2ª abertura do circuito na mesma conversa (spec §1.3)"}
+{"id": "ho-06", "estado": "QUALIFICANDO", "user_input": "quero contratar seguro de vida, não de carro", "expected": {"acao": "primeira_vez_redirect"}, "nota": "1ª fora de escopo: redirect; 2ª → handoff fora_escopo"}
+{"id": "ho-07", "estado": "QUALIFICANDO", "user_input": "me ajuda a contratar plano de saúde? de novo", "contexto": {"fora_escopo_anterior": true}, "expected": {"acao": "handoff", "motivo": "fora_escopo"}}
+{"id": "ho-08", "estado": "OBJECAO", "user_input": "ok, deixa pra lá, não vou querer", "expected": {"acao": "encerrar", "desfecho": "ENCERRADA_PERDIDO"}, "nota": "sem handoff — rejeição limpa"}
