@@ -49,8 +49,8 @@ test-data: ## testes do pipeline de dados (scripts/tests)
 test: ## pytest + coverage gate >=90% (logica deterministica) — Etapa 14
 	@echo "ERRO: alvo 'test' chega com a Etapa 14 (tests/ em services/agent-api)."; exit 1
 
-evals: ## suite de evals (extracao, handoff, 20 ataques) — Etapa 19
-	@echo "ERRO: alvo 'evals' chega com a Etapa 19 (evals/)."; exit 1
+evals: ## suite de evals E1/E2/E3 com gates (Etapa 19) — offline/FakeLLM
+	cd services/agent-api && uv run python ../../evals/run_evals.py
 
 fmt: ## ruff format + ruff --fix + prettier --write (Etapa 13)
 	cd services/agent-api && uv run ruff format . && uv run ruff check --fix .

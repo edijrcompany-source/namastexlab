@@ -11,9 +11,20 @@ import re
 _RE_MOEDA = re.compile(r"R\$\s?\d{1,3}(?:\.\d{3})*(?:,\d{2})?|R\$\s?\d+(?:,\d{2})?")
 
 
-def _valores_validos(cotacoes: list[dict]) -> set[str]:
-    """Todas as representações legítimas de dinheiro da conversa."""
+def _valores_validos(cotacoes: list[dict], planos: list[dict] | None = None) -> set[str]:
+    """Todas as representações legítimas de dinheiro: cotações E /planos.
+
+    Franquia/base dos planos vêm da MESMA API (spec §6.8 — o comparativo de
+    objeção usa planos reais): são origem legítima para o guard.
+    """
     validos: set[str] = set()
+    for plano in planos or []:
+        cot = {"premio_mensal": plano.get("base_mensal"), "franquia": plano.get("franquia")}
+        for valor in (cot["premio_mensal"], cot["franquia"]):
+            if valor is None:
+                continue
+            centavos = round(float(valor) * 100)
+            validos.add(f"{centavos // 100:,}".replace(",", ".") + f",{centavos % 100:02d}")
     for cot in cotacoes:
         candidatos = [
             cot.get("premio_mensal"),
@@ -31,13 +42,15 @@ def _valores_validos(cotacoes: list[dict]) -> set[str]:
     return validos
 
 
-def validar_resposta(resposta: str, cotacoes: list[dict]) -> bool:
-    """True se TODO R$ citado tem origem nas cotações da conversa.
+def validar_resposta(
+    resposta: str, cotacoes: list[dict], planos: list[dict] | None = None
+) -> bool:
+    """True se TODO R$ citado tem origem na API (cotações e/ou /planos).
 
-    Sem cotações na conversa ⇒ qualquer R$ é violação (inviável o Agente citar
-    preço sem cotação — guardrail da métrica norte).
+    Sem cotação nem plano na conversa ⇒ qualquer R$ é violação (guardrail da
+    métrica norte).
     """
-    validos = _valores_validos(cotacoes)
+    validos = _valores_validos(cotacoes, planos)
     for m in _RE_MOEDA.finditer(resposta):
         bruto = m.group(0)
         numero = bruto.replace("R$", "").strip()

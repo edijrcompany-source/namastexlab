@@ -59,8 +59,19 @@ class Campos:
 
 def extrair_campos(texto: str) -> Campos:
     """Extrai + valida. Idade 0-120 · ano 1950..ano_atual+1 · CEP normalizado."""
+    data_inicio = None
+    m = _RE_DATA.search(texto)
+    if m:
+        try:
+            dt.date.fromisoformat(m.group(1))
+            data_inicio = m.group(1)
+        except ValueError:
+            data_inicio = None  # inválida → descartada (spec §4.4)
+
+    # ano do VEÍCULO: busca fora da data de início (a data contém um ano próprio)
+    texto_sem_data = _RE_DATA.sub(" ", texto) if data_inicio else texto
     ano = None
-    for m in _RE_ANO.finditer(texto):
+    for m in _RE_ANO.finditer(texto_sem_data):
         valor = int(m.group(0))
         if 1950 <= valor <= dt.date.today().year + 1:
             ano = valor
@@ -75,15 +86,6 @@ def extrair_campos(texto: str) -> Campos:
     m = _RE_CEP.search(texto)
     if m:
         cep = f"{m.group(1)}-{m.group(2)}"
-
-    data_inicio = None
-    m = _RE_DATA.search(texto)
-    if m:
-        try:
-            dt.date.fromisoformat(m.group(1))
-            data_inicio = m.group(1)
-        except ValueError:
-            data_inicio = None  # inválida → descartada (spec §4.4)
 
     veiculo_texto = None
     if ano is not None:
