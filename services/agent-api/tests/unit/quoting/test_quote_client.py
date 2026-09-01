@@ -5,6 +5,7 @@ e a classificação de erros da etapa-6 §3.2 (422=negócio sem retry · 400=bug
 Inclui a simulação do NFR-04: 1.000 cotações com p_falha=0.30/tentativa ⇒
 sucesso eventual ≥95% (matemática: 1−0.3³=97.3%).
 """
+
 import random
 from collections.abc import Callable
 from typing import Any
@@ -96,7 +97,8 @@ class TestRetryTransiente:
         acl, sleeper = make_acl(_503, rng=random.Random(7))
         with pytest.raises(TransientQuoteError):
             acl.cotar(PAYLOAD)
-        assert sleeper.delays == [500.0 + j1, 1000.0 + j2]
+        # sleeper recebe SEGUNDOS (spec §2 em ms → s)
+        assert sleeper.delays == [(500.0 + j1) / 1000, (1000.0 + j2) / 1000]
 
     def test_3_tentativas_esgotam_e_levanta_transiente(self) -> None:
         calls = {"n": 0}
@@ -231,3 +233,16 @@ class TestSimulacaoNfr04:
                 pass
 
         assert ok >= 950, f"sucesso eventual {ok}/1000 abaixo do NFR-04 (95%)"
+
+
+@pytest.mark.unit
+class TestConfigFromEnv:
+    def test_defaults_da_spec(self) -> None:
+        cfg = QuoteAclConfig.from_env(env={})
+        assert cfg.timeout_ms == 3000
+        assert cfg.max_attempts == 3
+
+    def test_env_override(self) -> None:
+        cfg = QuoteAclConfig.from_env(env={"QUOTE_TIMEOUT_MS": "1500", "QUOTE_MAX_ATTEMPTS": "5"})
+        assert cfg.timeout_ms == 1500
+        assert cfg.max_attempts == 5

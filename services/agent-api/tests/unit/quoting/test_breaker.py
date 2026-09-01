@@ -3,6 +3,7 @@
 Parâmetros imutáveis da spec: abre com 5 falhas CONSECUTIVAS · half-open
 após 30s · fecha com 2 SUCESSOS no half-open · sucesso reseta as consecutivas.
 """
+
 import pytest
 
 from app.quoting.breaker import BreakerConfig, BreakerState, CircuitBreaker
