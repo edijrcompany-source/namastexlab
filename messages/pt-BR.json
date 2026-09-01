@@ -5,7 +5,6 @@
     "placeholders": "{nome}",
     "nota": "Fonte única de mensagens de API + front + canônicas do Agente (ADR-0009). Materializa spec §6 e catálogo de erros da Etapa 6. Chaves nunca mudam de significado; textos podem ser revistos (semver de contrato aplica)."
   },
-
   "agent": {
     "saudacao": "Oi! Que bom te ver por aqui. Pra cotar seu seguro eu preciso de três coisas: o veículo com o ano, a sua idade e o CEP de onde o carro dorme.",
     "pedir_campo": {
@@ -35,34 +34,6 @@
     "cotacao_apresentacao_fallback": "Saiu a cotação! Plano {plano_nome}: {premio}/mês, franquia de {franquia}, cobrindo {coberturas}. Roubo e furto passam a valer após {carencia_dias} dias de carência.",
     "cotacao_prorata_linha": "Como a vigência começa no meio do mês, o primeiro pagamento sai proporcional: {valor_primeiro} ({dias_cobrados} dias cobrados)."
   },
-
-  "api.erro": {
-    "conversa_nao_encontrada": {
-      "title": "Conversa não encontrada",
-      "detail": "Não achamos essa conversa. Ela pode ter sido apagada ou o link está incorreto."
-    },
-    "payload_invalido": {
-      "title": "Payload inválido",
-      "detail": "A mensagem não passou na validação. Envie 'text' OU ('media_type' + 'media_marker'), com até 4.000 caracteres."
-    },
-    "limite_taxa_excedido": {
-      "title": "Muitas mensagens seguidas",
-      "detail": "Calma lá! 😅 Aguarde um minuto e tente de novo."
-    },
-    "nao_autorizado": {
-      "title": "Operação administrativa",
-      "detail": "Esta operação exige token de administração."
-    },
-    "servico_indisponivel": {
-      "title": "Sistema temporariamente indisponível",
-      "detail": "Estamos com uma indisponibilidade momentânea. Tente novamente em instantes."
-    },
-    "erro_interno": {
-      "title": "Algo saiu do ar do nosso lado",
-      "detail": "Já registramos o problema. Use o código de suporte exibido ao tentar novamente."
-    }
-  },
-
   "ui": {
     "common": {
       "enviar": "Enviar",
@@ -101,6 +72,34 @@
       "banner": "Opa, algo saiu do ar do nosso lado 🙈 Já registramos com o código {correlation_id}. Tenta de novo em instantes — ou atualiza a página.",
       "boundary_titulo": "Essa tela deu pau",
       "boundary_corpo": "Não se preocupe, sua conversa está salva. Use o código {correlation_id} se precisar de suporte."
+    }
+  },
+  "api": {
+    "erro": {
+      "conversa_nao_encontrada": {
+        "title": "Conversa não encontrada",
+        "detail": "Não achamos essa conversa. Ela pode ter sido apagada ou o link está incorreto."
+      },
+      "payload_invalido": {
+        "title": "Payload inválido",
+        "detail": "A mensagem não passou na validação. Envie 'text' OU ('media_type' + 'media_marker'), com até 4.000 caracteres."
+      },
+      "limite_taxa_excedido": {
+        "title": "Muitas mensagens seguidas",
+        "detail": "Calma lá! 😅 Aguarde um minuto e tente de novo."
+      },
+      "nao_autorizado": {
+        "title": "Operação administrativa",
+        "detail": "Esta operação exige token de administração."
+      },
+      "servico_indisponivel": {
+        "title": "Sistema temporariamente indisponível",
+        "detail": "Estamos com uma indisponibilidade momentânea. Tente novamente em instantes."
+      },
+      "erro_interno": {
+        "title": "Algo saiu do ar do nosso lado",
+        "detail": "Já registramos o problema. Use o código de suporte exibido ao tentar novamente."
+      }
     }
   }
 }
