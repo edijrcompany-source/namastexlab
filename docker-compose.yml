@@ -8,7 +8,9 @@ name: namastex-fde
 
 services:
   agent-api:
-    build: ./services/agent-api
+    build:
+      context: .                      # raiz: messages/ e prompts/ entram na imagem
+      dockerfile: services/agent-api/Dockerfile
     ports: ["8001:8001"]
     environment:
       QUOTE_API_URL: http://quote-api:8000
@@ -58,7 +60,9 @@ services:
     restart: unless-stopped
 
   migrations:
-    build: ./services/agent-api                # mesma imagem (multi-destino) como job efêmero
+    build:
+      context: .
+      dockerfile: services/agent-api/Dockerfile   # mesma imagem como job efêmero
     command: ["alembic", "upgrade", "head"]    # no Railway: pre-deploy command (etapa-8 §4)
     environment:
       DATABASE_URL: postgresql://autoseguro:autoseguro@postgres:5432/autoseguro

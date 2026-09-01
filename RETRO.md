@@ -37,7 +37,8 @@ implementação que o satisfaz é da IA** (Etapa 14 §3).
 | L2 | Convenção de commits divergia do padrão do guia | Etapa 13 reescreveu regra do AGENTS.md + commitlint custom |
 | L3 | Rennumeração do guia (18→21 etapas) quebrou referências cruzadas | Tabela de mapeamento no docs/README.md — aprendizado: processo também precisa de changelog |
 | L4 | **import-linter pegou o núcleo importando bordas** (orchestrator → llm/quoting) — o contrato C4 §3 vale desde a 1ª linha | Refactor T-09: portas/exceções/extração/price-guard migrados para `domain/` (onde contratos moram); bordas só implementam |
-| L5 | **Pipe `\| tail` mascarou exit code do ruff** 2× e commit saiu com gate vermelho | Gates agora verificados com `echo EXIT=$?` explícito (nunca pipe antes de `&&`); lição registrada no AGENTS? Não — no fluxo: sempre exit code |
+| L5 | **Pipe `\| tail` mascarou exit code do ruff** 2× e commit saiu com gate vermelho | Gates agora verificados com `echo EXIT=$?` explícito (nunca pipe antes de `&&`) |
+| L6 | **3 bugs de containerização pegos no primeiro build real**: contexto do build não via messages/prompts · `#` inline em COPY virou destino · shebang do venv apontava /build (builder) | Contexto raiz + .dockerignore cirúrgico · comentários só em linha própria · CMD via `python -m uvicorn` — containers healthy, não-root 10001, C1 verde no compose |
 
 ## O que faria diferente 🔄 (⏳ atualizar na entrega)
 
@@ -63,6 +64,12 @@ T-15. Templates e regra 48h: `docs/postmortems/`.
 | | | | | | |
 
 *(coleta: 4 números, 5 min por release — dados do GitHub Actions + Sentry)*
+
+## Containers (01/09/2026 — item literal cumprido)
+
+`docker compose up --build` → **agent-api (healthy) · quote-api · postgres (healthy)** no ar;
+não-root uid 10001; C1 ponta a ponta verde contra o legado em container (prêmio 119,90
+correto pela regra: CEP 01 sem agravo × idade 30 × Onix 2022).
 
 ## Números finais (atualizados 01/09/2026 — implementação T-01..T-16)
 

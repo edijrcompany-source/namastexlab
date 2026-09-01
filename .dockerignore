@@ -1,0 +1,20 @@
+# contexto de build = raiz (agent-api) — manter enxuto
+.git
+.github
+docs
+dataset
+node_modules
+**/__pycache__
+**/.venv
+**/.next
+**/.pytest_cache
+**/.ruff_cache
+apps
+evals
+scripts
+infra
+observability
+e2e
+ai-logs
+quote-service
+/*.md
