@@ -12,7 +12,11 @@ def create_app() -> FastAPI:
     application = FastAPI(title="AutoSeguro agent-api", version="0.1.0")
     application.include_router(health_router)
     application.include_router(conversations_router)
-    origins = [o.strip() for o in os.getenv("AGENT_CORS_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
+    origins = [
+        o.strip()
+        for o in os.getenv("AGENT_CORS_ORIGINS", "http://localhost:3000").split(",")
+        if o.strip()
+    ]
     application.add_middleware(
         CORSMiddleware,
         allow_origins=origins,  # origem EXATA (T16) — nunca "*"
