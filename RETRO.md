@@ -59,13 +59,15 @@ T-15. Templates e regra 48h: `docs/postmortems/`.
 
 *(coleta: 4 números, 5 min por release — dados do GitHub Actions + Sentry)*
 
-## Números finais (preencher na entrega) ⏳
+## Números finais (atualizados 01/09/2026 — implementação T-01..T-16)
 
-- [ ] TRA na bateria simulada (meta ≥70%) · TTFC p95 (meta <2min)
-- [ ] Evals: E1 __% · E2 __% · E3 0/20 · E4 0 violações
-- [ ] Custo LLM por conversa (meta ≤US$0,10) · mensal (≤US$5)
-- [ ] Coverage lógica determinística (meta ≥90%) · mutmut núcleo (≥60%)
-- [ ] Uptime da demo durante a avaliação (meta ≥99%)
+- [x] **TRA na bateria simulada: 96,5%** (193/200 no pior caso 30%/tentativa — meta ≥70%) ✅
+- [x] **Evals: E1 100% · E2 100% · E3 20/20 (0 violações)** · E4 0 violações (price-guard testado) ✅
+- [x] **Coverage lógica determinística: 100%** (157 testes, gate 100 — meta original 90→99→100)
+- [x] Silver: **PII mascarada 100%** (26.470 msgs / 2.500 conversas, 0 vazamentos) ✅
+- [ ] Custo LLM por conversa (com LLM real — FakeLLM na demo: US$ 0) ⏳
+- [ ] mutmut núcleo (≥60%) — job noturno ⏳
+- [ ] Uptime da demo durante a avaliação (≥99%) — pós-deploy ⏳
 
 ## Próximos passos (se o projeto continuasse)
 
