@@ -13,7 +13,7 @@ export default defineConfig({
       provider: "v8",
       include: ["app/**/*.{ts,tsx}"],
       exclude: ["app/**/*.test.tsx", "app/**/*.stories.tsx", "types/**"],
-      thresholds: { lines: 80, functions: 80 }, // export handler (URL.createObjectURL) not jsdom-testable
+      thresholds: { lines: 99, functions: 95 }, // export handler (URL.createObjectURL) not jsdom-testable
       reporter: ["text", "json-summary"],
     },
   },
