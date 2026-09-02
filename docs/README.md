@@ -46,6 +46,7 @@ regras invioláveis e protocolo para agentes de IA.
 | [`apendice-a-entrega-modular-scrum.md`](./apendice-a-entrega-modular-scrum.md) | Sprints 1-2 sem · fatias verticais banco→API→front · preview Vercel · evidência visual · aceite humano por feature |
 | [`apendice-b-normas-seguranca.md`](./apendice-b-normas-seguranca.md) | OAuth 2.1+OIDC/PKCE · RBAC servidor · RLS por tenant · rate-limit/WAF · DTO como fronteira · OWASP Top 10 por release |
 | [`auditoria-final.md`](./auditoria-final.md) | Certificação item a item vs desafio + 22 portões (evidências executadas) |
+| [`depara-desafio-vs-entrega.md`](./depara-desafio-vs-entrega.md) | **De-pará completo**: desafio vs entrega, 4 seções (entregáveis, critérios, arquitetura, números) |
 
 ## Índice de artefatos — Fase 1
 
